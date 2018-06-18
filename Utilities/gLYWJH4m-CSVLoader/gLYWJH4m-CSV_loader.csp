@@ -1,0 +1,144 @@
+<div class="section section-visible" data-type="package" name="CSV loader" data-id="gLYWJH4m" transient-focussed="true"><div class="paragraph body-paragraph collapsed locked" name="Documentation" data-id="jkR3kXAf"><div data-type="content" type="text/html" codemirror="true" contenteditable="false" class="section-documentation"><h2>CSV Loader</h2><div>Lets you upload a CSV file as asset and parse its data</div></div></div><div class="paragraph data-paragraph locked collapsed" name="Properties" data-id="8uiBJyw3"><pre data-type="content" type="application/json" class="section-properties" contenteditable="false">{
+	"version": "0.2.1",
+	"icon": "your_material_icon_string",
+	"description": "Lets you upload a CSV file as asset and parse its data.",
+	"tags": [
+		"vistrate"
+	],
+	"assets": [
+		"papaparse.min.js"
+	],
+	"dependencies": [
+		{
+			"id": "kTKppb2i",
+			"name": "Vistrate",
+			"optional": false
+		}
+	],
+	"changelog":
+	{
+    "0.2.1": "Minor CSS update.",
+    "0.2": "Only show first 10 data rows.",
+		"0.1": "Initial version."
+	},
+  "github": {
+    "url": "https://github.com/karthikbadam/Vistrates",
+    "folder": "Utilities/gLYWJH4m-CSVLoader"
+  }
+}</pre></div><div class="paragraph code-paragraph collapsed" name="CSV loader" data-id="xsfDUv7d" last-execution-state="success"><pre data-type="content" type="text/javascript-viscontroller" class="viscontroller" id="CSVLoader">vc = {
+	data: '$data-id',
+	src: [],
+	libs: ["papaparse.min.js"],
+	init: function() {
+		this.Papa = Papa;
+		this.showUploadButton = () =&gt; {
+			const uploadButton = document.createElement("button");
+			uploadButton.innerText = "Upload CSV asset";
+			this.view.content = uploadButton;
+			uploadButton.addEventListener("click", (e) =&gt; {
+				webstrate.uploadAsset((err, res) =&gt; {
+					this.data = {asset: res};
+				});
+			});			
+		};
+		
+		this.showTable = (data) =&gt; {
+			const buildTableRow = (entry, elType = "td") =&gt; {
+			 return `&lt;tr&gt;${Object.keys(entry).map((k) =&gt; `&lt;${elType}&gt;${String(entry[k]).slice(0, 20)}&lt;/${elType}&gt;`).join("")}&lt;tr&gt;`;
+			};
+			const buildTableBody = (data) =&gt; {
+				return data.slice(1, 11).map((entry) =&gt; buildTableRow(entry)).join("");
+			};
+			let tableHead = `&lt;tr&gt;${Object.keys(data[0]).map((k) =&gt; `&lt;th&gt;${k}&lt;/th&gt;`).join("")}&lt;tr&gt;`;
+			let tableBody = buildTableBody(data);
+
+			let table = `&lt;table&gt;&lt;thead&gt;${tableHead}&lt;/thead&gt;&lt;body&gt;${tableBody}&lt;/body&gt;&lt;/table&gt;`;
+			let container = document.createElement("div");
+			container.classList.add("csv-table");
+			container.innerHTML = table;
+			this.view.element.appendChild(container);
+		};
+	},
+	destroy: function() {
+		if (this.view) this.view.content = "";
+	},
+	update: function() {
+
+		if (this.view) this.view.content = "";
+		if (!this.data.asset) {
+			this.showUploadButton();
+		}	else {
+			this.Papa.parse(this.data.asset.fileName, {
+				dynamicTyping: true,
+				download: true,
+				header: true,
+				complete: (results) =&gt; {
+					this.showTable(results.data);
+					this.output = results.data;
+				}
+			});
+		}
+	},
+};</pre></div><div class="paragraph style-paragraph collapsed" data-id="Pr9DK87X" draggable="false" style="" name="CSV table style"><style data-type="content" type="text/css" codemirror="true">.csv-table {
+	padding: 0px;
+	color: var(--color-primary-shade-1);
+	width: 100% !important;
+	color: var(--color-primary-text);
+	overflow: auto;
+}
+
+.csv-table table {
+	width: 100% !important;
+	font-size: .6em;
+	border-collapse: collapse;
+}
+
+.csv-table table td {
+	table-layout: fixed;
+}
+
+.csv-table table thead tr {
+	background-color: var(--color-primary-shade-1);
+	color: var(--color-primary-text);
+	text-align: left;
+}
+
+.csv-table table tr:hover {
+	background-color: var(--color-accent) !important;
+}
+
+.csv-table table {
+	background-color: var(--color-primary-shade-2);
+}
+
+.query-ui {
+	font-size: .6em;	
+}
+
+.query-ui input {
+	margin-left: 4px;
+	margin-right: 4px;
+	width: 20em;;
+	padding: 4px;
+	padding-left: 0px;
+	outline: 0;
+	color: var(--color-primary-text);
+	background-color: transparent;
+	border: 0;
+	border-bottom: 1px solid var(--color-tertiary-text);
+	margin-top: 8px;
+	margin-bottom: 16px;
+}
+
+.query-ui input.short {
+	width: 3em;
+	text-align: center;
+}
+</style></div><div class="paragraph data-paragraph collapsed" name="CSV loader data" data-id="EmfnA287" style=""><pre data-type="content" type="application/json" id="CSVLoader-data" class="visdata">{
+  "config": {
+    "src": {},
+    "view": "$view-id"
+  },
+  "data": {
+  }
+}</pre></div><div class="paragraph body-paragraph locked" name="CSV loader view" data-id="gfhdJShs" style=""><div data-type="content" type="text/html" codemirror="true" contenteditable="false" id="CSVLoader-view" class="visview"></div></div></div>
