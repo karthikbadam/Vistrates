@@ -1,0 +1,341 @@
+<div class="section section-visible" data-id="NPHH9sxk" name="Vistrate Components Canvas" data-type="package" transient-focussed="true"><div class="paragraph body-paragraph" name="Documentation" data-id="Xh5Wuz8t" style=""><div data-type="content" type="text/html" codemirror="true" contenteditable="true" class="section-documentation"><h2>Description</h2><div>The Components Container package integrates with Vistrate and allows arrange component views on a 2D canvas. The 2D canvas also allows for drawings.</div></div></div><div class="paragraph data-paragraph locked collapsed" name="Properties" data-id="kNiGcjkY" style=""><pre data-type="content" type="application/json" class="section-properties" contenteditable="false">{
+  "version": "0.2.18",
+  "icon": "view_compact",
+  "description": "Vistrate components container to arrange component views on a 2D canvas.",
+  "tags": [
+    "Vistrate",
+    "2D",
+    "canvas",
+    "drawing"
+  ],
+  "assets": [
+    "hammer.min.js",
+    "transformer.min.js"
+  ],
+  "dependencies": [
+    {
+      "id": "kTKppb2i",
+      "name": "Vistrate",
+      "optional": false,
+      "usage": "The components canvas only works together with the Vistrate package."
+    },
+    {
+      "id": "Kw6McUkB",
+      "name": "Canvas",
+      "optional": true,
+      "usage": "The components canvas allows for drawings, but only works if the canvas package is installed."
+    },
+    {
+      "id": "VxDJJKw9",
+      "name": "Canvas Objects",
+      "optional": true,
+      "usage": "The Canvas Objects allows for to add componets to the canvas."
+    }
+  ],
+  "changelog": {
+    "0.1": "Initial version.",
+    "0.1.1": "Added optional dependency to Canvas package.",
+    "0.1.2": "Added context menu paragraphs (temporary, will move to Codestrates)",
+    "0.1.3": "Fixed bug that didn't populate the component containers on page load.",
+    "0.1.4": "Fixed style of context menu",
+    "0.1.5": "Wrapped components in context menu in sub menu",
+    "0.1.6": "Added support for touch in context menu",
+    "0.1.7": "Added canvas lock/unlock option to context menu",
+    "0.1.8": "Locks are now per canvas and the setting persists after page reload",
+    "0.1.9": "Updated context menu including z-index",
+    "0.1.10": "Reworked the Vistrate Component Canvas to work with a regular canvas, and added the option to add text and other assets.",
+    "0.2": "Removed context menu section, which was now integrated into Codestrates prototype.",
+    "0.2.1": "Removed old code paragraphs and styles",
+    "0.2.2": "Added dependency to Canvas Objects",
+    "0.2.3": "Refactored context menu",
+    "0.2.4": "Adapted to changes in context menu",
+    "0.2.5": "Added grid view style and option to context menu to enable grid view.",
+    "0.2.6": "Removed background and min-height for grid view.",
+    "0.2.7": "Added options to move grid items forward/backward.",
+    "0.2.8": "Add drag and drop for canvas objects in grid view.",
+    "0.2.9": "Adapted grid view CSS to make it work with Presentation package.",
+    "0.2.10": "Drag and drop of grid canvas objects works in Presentation package.",
+    "0.2.11": "Giving the Vistrate controller ample time to render the component before taking it out of its default view and adding it to the canvas.",
+    "0.2.12": "Fixed issue that did not put back the view component to the viscontroller view when removing component from the canvas.",
+    "0.2.13": "Removed console.log.",
+    "0.2.14": "Matching Clemens' amazing view.moveTo and view.moveBack API ;).",
+    "0.2.15": "Only showing components in the context menu that are in section, which are not hidden.",
+    "0.2.16": "Always show pipeline component in canvas context menu.",
+    "0.2.17": "Fixed size for canvas object (720x480px).",
+    "0.2.18": "Undone 0.2.16 due to rework of pipeline view."
+  },
+  "github": {
+    "url": "https://github.com/karthikbadam/Vistrates",
+    "folder": "Presentation/NPHH9sxk-VistrateComponentsCanvas"
+  }
+}</pre></div><div class="paragraph code-paragraph collapsed" data-id="yFHgdU6e" run-on-load="true" last-execution-state="success" name="Add Components Sub Items to Canvas Context Menu"><pre data-type="content" type="text/javascript">const CanvasContextMenu = require('#canvas-context-menu');
+const CanvasObjectUtils = require('#canvas-object-utils');
+
+CanvasContextMenu.addItem({
+  // component views sub menu
+  type: "item",
+  label: "Components",
+  icon: "label",
+  items: () =&gt; {
+    // only get controllers with a view,
+    return Object.values(Vistrate.outputs)
+      .filter((controller) =&gt; {
+
+//         // This is a workaround to show pipeline on canvas even if pipeline view
+//         // section is collapsed
+//         if (controller.id === "pipeline") {
+//           return true;
+//         }
+
+        // only show component views from sections that are visible
+        const section = controller.paragraph.closest('.section');
+        if (section.classList.contains("section-hidden")) return false;
+        return !!controller.view;
+      })
+      .map((controller) =&gt; {
+        return {
+          type: "item",
+          label: controller.friendlyName,
+          icon: "fiber_manual_record",
+          action: (event) =&gt; {
+            let canvasObject = event.target.querySelector(`[data-ref="${controller.id}"]`);
+            if (canvasObject) {
+              canvasObject.remove();
+            } else {
+              const canvasObject = CanvasObjectUtils.createCanvasObject(event.x, event.y);
+              canvasObject.style.width = '720px';
+              canvasObject.style.height = '480px';
+              canvasObject.dataset.ref = controller.id;
+              event.target.appendChild(canvasObject);
+            }
+          }
+        };
+      });
+  }
+});
+
+CanvasContextMenu.addItem({
+  type: "item",
+  label: (event) =&gt; {
+    const canvas = event.target.closest('.paragraph .canvas');
+    return canvas.classList.contains("grid") ? "Grid off" : "Grid on";
+  },
+  icon: (event) =&gt; {
+    const canvas = event.target.closest('.paragraph .canvas');
+    return canvas.classList.contains("grid") ? "grid_off" : "grid_on";
+  },
+  action: (event) =&gt; {
+    const canvas = event.target.closest('.paragraph .canvas');
+
+    if (canvas.classList.toggle("grid")) {
+      //         const allCanvasObjects = Array.from(content.querySelectorAll('.canvas-object'));
+      //         const filteredCanvasObjects = allCanvasObjects.filter((object) =&gt; !object.style.order);
+      //         filteredCanvasObjects.forEach((object, idx) =&gt; {
+      //           object.style.order = allCanvasObjects.length - filteredCanvasObjects.length + idx;
+      //         });
+    }
+  }
+});
+
+// // grid context menu items
+// CanvasContextMenu.addItem({
+//   type: "item",
+//   label: "Grid",
+//   icon: "grid_on",
+//   items: [{
+//     type: "item",
+//     label: (event) =&gt; {
+//       const content = event.target.closest('.paragraph [data-type="content"]');
+//       return content.classList.contains("grid") ? "Grid off" : "Grid on";
+//     },
+//     icon: (event) =&gt; {
+//       const content = event.target.closest('.paragraph [data-type="content"]');
+//       return content.classList.contains("grid") ? "grid_off" : "grid_on";
+//     },
+//     action: (event) =&gt; {
+//       const content = event.target.closest('.paragraph [data-type="content"]');
+
+//       if (content.classList.toggle("grid")) {
+// //         const allCanvasObjects = Array.from(content.querySelectorAll('.canvas-object'));
+// //         const filteredCanvasObjects = allCanvasObjects.filter((object) =&gt; !object.style.order);
+// //         filteredCanvasObjects.forEach((object, idx) =&gt; {
+// //           object.style.order = allCanvasObjects.length - filteredCanvasObjects.length + idx;
+// //         });
+//       }
+//     }
+//   }, {
+//     type: "item",
+//     label: "Move backward",
+//     icon: "arrow_upward",
+//     action: (event) =&gt; {
+//       const canvas = event.target.closest('.paragraph [data-type="content"]');
+
+//       const canvasObject = event.srcEvent.target.closest('.canvas-object');
+//       if (canvasObject) {
+
+//         let order = +canvasObject.style.order;
+
+//         const allCanvasObjects = Array.from(canvas.querySelectorAll('.canvas-object'));
+//         const filteredCanvasObjects = allCanvasObjects.filter((object) =&gt; (+object.style.order) &lt; order);
+//         filteredCanvasObjects.sort((a, b) =&gt; +a.style.order &gt; +b.style.order);
+
+//         let siblingCanvasObject = filteredCanvasObjects[filteredCanvasObjects.length - 1];
+//         if (siblingCanvasObject) {
+//           let tmpOrder = siblingCanvasObject.style.order;
+//           siblingCanvasObject.style.order = canvasObject.style.order;
+//           canvasObject.style.order = tmpOrder;
+//         }
+//       }
+//     }
+//   }, {
+//     type: "item",
+//     label: "Move forward",
+//     icon: "arrow_downward",
+//     action: (event) =&gt; {
+//       const canvas = event.target.closest('.paragraph [data-type="content"]');
+
+//       const canvasObject = event.srcEvent.target.closest('.canvas-object');
+//       if (canvasObject) {
+
+//         let order = +canvasObject.style.order;
+
+//         const allCanvasObjects = Array.from(canvas.querySelectorAll('.canvas-object'));
+//         const filteredCanvasObjects = allCanvasObjects.filter((object) =&gt; (+object.style.order) &gt; order);
+//         filteredCanvasObjects.sort((a, b) =&gt; +a.style.order &gt; +b.style.order);
+
+//         let siblingCanvasObject = filteredCanvasObjects[0];
+//         if (siblingCanvasObject) {
+//           let tmpOrder = siblingCanvasObject.style.order;
+//           siblingCanvasObject.style.order = canvasObject.style.order;
+//           canvasObject.style.order = tmpOrder;
+//         }
+//       }
+//     }
+//   }]
+// });</pre></div><div class="paragraph code-paragraph collapsed" data-id="f7u2dUBD" run-on-load="true" last-execution-state="success" name="Live Selector to Add Components to Containers" style=""><pre data-type="content" type="text/javascript">	const watchCanvasesForComponentContainers = () =&gt; {
+
+	  const liveSelector = document.liveQuerySelectorAll('.canvas');
+	  liveSelector.added((canvas) =&gt; {
+
+	    const canvasObjectSelector = canvas.liveQuerySelectorAll('.canvas-object');
+	    canvasObjectSelector.added((canvasObject) =&gt; {
+//         window.console.log('added', canvasObject.dataset.ref);
+
+	      // check if canvas object has a data-ref attribute
+
+	      const refId = canvasObject.dataset.ref;
+	      if (refId) {
+	        const component = Vistrate.getOutput(refId);
+	        //canvasObject.appendChild(component.view.element);
+          component.view.moveTo(canvasObject);
+	      }
+	    });
+	    canvasObjectSelector.removed((canvasObject) =&gt; {
+//         window.console.log('removed', canvasObject.dataset.ref);
+
+	      const refId = canvasObject.dataset.ref;
+	      if (refId) {
+	        const component = Vistrate.getOutput(refId);
+          // putting the component view back to where it came from
+	        //component.view.parent.appendChild(canvasObject.querySelector('.visview'));
+          component.view.moveBack();
+	      }
+	    });
+	  });
+	};
+
+	Codestrate.addEventListener("loaded", function onLoaded() {
+	  Codestrate.removeEventListener("loaded", onLoaded);
+	  setTimeout(() =&gt; {
+	    watchCanvasesForComponentContainers();
+	  }, 0);
+	});</pre></div><div class="paragraph code-paragraph collapsed" data-id="NsymcJdM" last-execution-state="success" run-on-load="true" draggable="false" style="" name="Drag and Drop in Grid"><pre data-type="content" type="text/javascript">const EventUtils = require('#event-utils');
+
+const sortable = (canvas) =&gt; {
+
+  let dragEl;
+
+  const onDragOver = EventUtils.throttle((event) =&gt; {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+
+    var target = event.target.closest('.canvas-object');
+    if (target &amp;&amp; target !== dragEl) {
+      //getBoundinClientRect contains location-info about the element (relative to the viewport)
+      let targetPos = target.getBoundingClientRect();
+
+      //checking that dragEl is dragged over half the target y-axis or x-axis. (therefor the .5)
+      let relY = (event.clientY - targetPos.top) / targetPos.height;
+      let relX = (event.clientX - targetPos.left) / targetPos.width;
+      let next = relX &gt; 0.5; // || relY &gt; 0.5;
+
+      canvas.insertBefore(dragEl, next ? target.nextElementSibling : target);
+    }
+  }, 250);
+
+  const onDragEnd = (event) =&gt; {
+    event.preventDefault();
+
+    dragEl.classList.remove("ghost");
+    canvas.removeEventListener("dragover", onDragOver, true);
+    canvas.removeEventListener("dragend", onDragEnd, true);
+  };
+
+  const onDragStart = (event) =&gt; {
+    dragEl = event.target.closest('.canvas-object');
+
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('Text', dragEl.textContent);
+
+    canvas.addEventListener("dragover", onDragOver, true);
+    canvas.addEventListener("dragend", onDragEnd, true);
+
+    setTimeout(() =&gt; {
+      dragEl.classList.add("ghost");
+    }, 0);
+  };
+
+  canvas.addEventListener("dragstart", onDragStart, true);
+
+  return {
+    destroy: () =&gt; {
+      canvas.removeEventListener("dragstart", onDragStart, true);
+      canvas.removeEventListener("dragover", onDragOver, true);
+      canvas.removeEventListener("dragend", onDragEnd, true);
+    }
+  };
+};
+
+const liveSelector = document.liveQuerySelectorAll('.body-paragraph .canvas');
+liveSelector.added((canvas) =&gt; {
+
+  canvas.liveAttribute("class").changed((value) =&gt; {
+    
+    if (canvas.__gridSortable) {
+      canvas.__gridSortable.destroy();
+      delete canvas.__gridSortable;
+    }
+
+    if (canvas.matches('.canvas.grid')) {
+      canvas.__gridSortable = sortable(canvas);
+    }
+  });
+});</pre></div><div class="paragraph style-paragraph collapsed" data-id="xkGewi7k" name="Grid Style" style=""><style data-type="content" type="text/css" codemirror="true">.canvas.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-rows: repeat(auto-fill, minmax(300px, 1fr));
+/*   grid-gap: 50px; */
+/*   grid-auto-flow: dense; */
+  
+  justify-items: center;
+  align-items: center;
+}
+
+/* Needed to disable transformer style */
+.canvas.grid .canvas-object {
+  position: static !important;
+  transform: none !important;
+  
+  border: 1px dashed lightgray;
+  -webkit-user-drag: element !important;
+}</style></div></div>
