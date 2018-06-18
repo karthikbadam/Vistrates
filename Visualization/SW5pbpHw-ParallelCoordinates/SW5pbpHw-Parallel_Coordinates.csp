@@ -1,0 +1,305 @@
+<div class="section section-visible hide-collapsed-paragraphs" name="Parallel Coordinates" data-type="package" data-id="SW5pbpHw" transient-focussed="true"><div class="paragraph body-paragraph" name="Documentation" data-id="LdBTBHeV"><div data-type="content" type="text/html" codemirror="true" contenteditable="true" class="section-documentation"><h2>Description</h2><div>Your description...</div></div></div><div class="paragraph data-paragraph collapsed" name="Properties" data-id="x5iP5U9h"><pre data-type="content" type="application/json" class="section-properties" contenteditable="true">{
+	"version": "0.1",
+	"icon": "your_material_icon_string",
+	"description": "A visualization component for creating Parallel Coordinate Charts with all the attributes in supplied data",
+	"tags": [
+    "vistrate", 
+    "visualization",
+    "chart"
+	],
+	"dependencies": [
+		{
+			"id": "kTKppb2i",
+			"name": "Vistrate",
+			"optional": false
+		},
+		{
+			"id": "2DQH3q7U",
+			"name": "Vistrate standard library",
+			"optional": false
+		}
+	],
+	"changelog":
+	{
+		"0.1": "Initial version."
+	},
+  "github": {
+    "url": "https://github.com/karthikbadam/Vistrates",
+    "folder": "Visualization/SW5pbpHw-ParallelCoordinates"
+  }
+}</pre></div><div class="paragraph code-paragraph collapsed" name="Parallel Coordinates" data-id="J4cF4Nks" last-execution-state="success"><pre data-type="content" type="text/javascript-viscontroller" class="viscontroller" id="parallelCoordinates">vc = {
+	data: '$data-id',
+	libs: ['https://d3js.org/d3.v4.min.js'],
+	src: ["data"],
+	init: function() {
+		this.view.content = '&lt;svg class="parallelCoordinates"&gt;&lt;/svg&gt;';
+		let that = this;
+    
+    this.filter = require("#stdlib-filter").filter;
+		
+		
+		// For a data type, returns the scale with domain set.
+		function getScale (type, data, key) {
+			var scale;
+			switch (type) {
+				case 'datetime':
+					scale = d3.scaleTime().domain(d3.extent(data, function(d) { return d[key]; }));
+					break;
+				case 'date':
+					scale = d3.scaleTime()
+						.domain(d3.extent(data, function(d) { return d[key]; }));
+					break;
+				case 'time':
+					scale = d3.scaleTime()
+						.domain(d3.extent(data, function(d) { return d[key]; }));
+					break;
+				case 'string':
+					scale = d3.scalePoint().domain(data.map(function(d) { return d[key]; })).padding(0.5);
+					break;
+				case 'integer':
+					scale = d3.scaleLinear().domain(d3.extent(data, function(d) { return d[key]; }));
+					break;
+				case 'float':
+					scale = d3.scaleLinear().domain(d3.extent(data, function(d) { return d[key]; }));
+					break;
+				default:
+					scale = d3.scalePoint().domain(data.map(function(d) { return d[key]; })).padding(0.5);
+					console.log('Sorry, we are out of ' + type + '.');
+			}
+			scale.type = type;
+			
+			// invert interaction to data function 
+			scale.invertRange = function (extent) {
+				var s = this;
+				if (s.type == "string" || !this.invert) {
+					return s.domain().filter(function (e) {
+						return extent[0] &lt;= s(e) &amp;&amp; s(e) &lt;= extent[1];
+					});
+				} else{
+					return [s.invert(extent[0]), s.invert(extent[1])];
+				}
+			};
+			
+			return scale;
+		}
+		
+		this.filter = require("#stdlib-filter").filter;
+		
+		// Creating variables and scales 
+		let x = d3.scalePoint();
+		let y = {};
+		let dragging = {};
+		let line = d3.line(), background, foreground;
+		
+		// Creating variables and scales 
+		let svg = d3.select(this.view.element.querySelector("svg")).append("g")
+			.attr("class", "container");
+		
+		this.draw = (data) =&gt; {
+      let dimensions = this.dimensions = Object.keys(data[0]);
+      let types = this.types;
+			let margin = {
+				left: 50,
+				right: 20, 
+				top: 30, 
+				bottom: 20
+			};
+			let width = 1000 - margin.left - margin.right;
+			let height =  600 - margin.top - margin.bottom;
+			let svg = d3.select(this.view.element.querySelector("svg"))
+				.attr("width", width + margin.left + margin.right)
+				.attr("height", height + margin.top + margin.bottom)
+				.select(".container")
+				.attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+			
+			// Extract the list of dimensions and create a scale for each.
+			x.range([0, width]).domain(dimensions.filter(function(d) {
+				return (y[d] = getScale(types[d], data, d)
+						.range([height, 0]));
+			}));
+
+			// Add grey background lines for context.
+			background = svg.append("g")
+					.attr("class", "background")
+				.selectAll("path")
+					.data(data)
+				.enter().append("path")
+					.attr("d", function (d) {
+						return line(dimensions.map(function(p) { return [x(p), y[p](d[p])]; }));
+					});
+
+			// Add blue foreground lines for focus.
+			foreground = svg.append("g")
+					.attr("class", "foreground")
+				.selectAll("path")
+					.data(data)
+				.enter().append("path")
+					.attr("d", function (d) {
+						return line(dimensions.map(function(p) { return [x(p), y[p](d[p])]; }));
+					});
+
+			// Add a group element for each dimension.
+			var g = svg.selectAll(".dimension")
+					.data(dimensions)
+				  .enter().append("g")
+					.attr("class", "dimension")
+					.attr("transform", function(d) { return "translate(" + x(d) + ")"; })
+					.call(d3.drag()
+						.subject(function(d) { return d3.select(this); })
+						.on("start", function(d) {
+							dragging[d] = x(d);
+							background.attr("visibility", "hidden");
+						})
+						.on("drag", function(d) {
+							dragging[d] = Math.min(width, Math.max(0, d3.event.x));
+							dimensions.sort(function(a, b) { return position(a) - position(b); });
+							x.domain(dimensions);
+							foreground.attr("d", path);
+							g.attr("transform", function(d) { return "translate(" + position(d) + ")"; });
+						})
+						.on("end", function(d) {
+							delete dragging[d];
+							transition(d3.select(this)).attr("transform", "translate(" + x(d) + ")");
+							transition(foreground).attr("d", path);
+							background
+									.attr("d", path)
+								.transition()
+									.delay(500)
+									.duration(0)
+									.attr("visibility", null);
+					}));
+
+			// Add an axis and title.
+			g.append("g")
+					.attr("class", "axis")
+					.each(function(d) { d3.select(this).call(d3.axisLeft(y[d])); })
+				.append("text")
+					.style("text-anchor", "middle")
+					.attr("y", -9)
+					.text(function(d) { return d; });
+
+			// Add and store a brush for each axis.
+			g.append("g")
+				.attr("id", function (d, i) {
+					return "brush-" + d;
+				})
+				.attr("class", "brush")
+				.each(function(d) {
+					d3.select(this)
+						.call(y[d].brush = d3.brushY().extent([[-5, 0], [5, height]])
+									.on("start", brushstart)
+									.on("brush", brush)
+									.on("end", brush));
+					})
+				.selectAll("rect")
+					.attr("x", -8)
+					.attr("width", 16);
+      
+      this.filter(this.src.data.output, [this.data])
+			.then((response) =&gt; {
+				this.output = response.selected;
+				console.log(this.output);
+			});
+		};
+		
+		function position(d) {
+			return !(d in dragging)? x(d) : dragging[d];
+		}
+
+		function transition(g) {
+			return g.transition().duration(500);
+		}
+
+		// Returns the path for a given data point.
+		function path(d) {
+			return line(that.dimensions.map(function(p) { return [position(p), y[p](d[p])]; }));
+		}
+
+		function brushstart() {
+			d3.event.sourceEvent.stopPropagation();
+		}
+
+		// Handles a brush event, toggling the display of foreground lines.
+		function brush() {
+			var actives = that.dimensions
+			.filter(function(p, i) {	return d3.brushSelection(svg.select("#brush-" + p).node()); }),
+					extents = actives
+			.map(function(p, i) { return d3.brushSelection(svg.select("#brush-" + p).node()); });
+			
+			console.log(extents);
+			foreground.style("display", function(d) {
+				return actives.every(function(p, i) {
+					return extents[i][0] &lt;= y[p](d[p]) &amp;&amp; y[p](d[p]) &lt;= extents[i][1];
+				}) ? null : "none";
+			});
+			
+			var t = {};
+			actives.forEach(function (d, i) {
+				t[d] = y[d].invertRange(extents[i]);
+			});
+			
+			that.data = t;
+		}
+		
+		
+	},
+	destroy: function() {
+
+	},
+	update: function() {
+    if (!this.src.data) return;
+		var data = this.src.data.output;
+    if (!this.types) {
+      this.extract_types = require("#stdlib-extract-types").extract_types;
+      this.extract_types(data.slice(0, 6)).then((response) =&gt; {
+        this.types = response;
+        this.draw(data);
+      });
+    } else {
+      this.draw(data);
+    }
+	},
+};</pre></div><div class="paragraph data-paragraph collapsed" name="Parallel Coordinates data" data-id="rNNUQYWn"><pre data-type="content" type="application/json" id="parallelCoordinates-data" class="visdata">{
+  "config": {
+    "src": {
+    },
+    "view": "$view-id"
+  },
+  "data": {
+  }
+}</pre></div><div class="paragraph style-paragraph collapsed" data-id="PSx4PvJi" name="Parallel Coordinated style"><style data-type="content" type="text/css" codemirror="true">.parallelCoordinates {
+  font: 10px sans-serif;
+  background-color: white;
+}
+
+.parallelCoordinates .background path {
+  fill: none;
+  stroke: #222;
+  shape-rendering: crispEdges;
+	stroke-opacity: 0.3;
+}
+
+.parallelCoordinates .foreground path {
+  fill: none;
+  stroke: steelblue;
+	stroke-opacity: 0.3;
+}
+
+.parallelCoordinates .brush .extent {
+  fill-opacity: .3;
+  stroke: #EEE;
+  shape-rendering: crispEdges;
+}
+
+.parallelCoordinates .axis line,
+.parallelCoordinates .axis path {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.parallelCoordinates .axis text {
+  cursor: move;
+}
+</style></div><div class="paragraph body-paragraph" name="Parallel Coordinates view" data-id="PniASbxU"><div data-type="content" type="text/html" codemirror="true" contenteditable="true" id="parallelCoordinates-view" class="visview"></div></div></div>
