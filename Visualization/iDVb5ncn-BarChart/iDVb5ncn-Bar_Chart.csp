@@ -1,0 +1,324 @@
+<div class="section section-visible hide-collapsed-paragraphs" name="Bar Chart" data-id="iDVb5ncn" data-type="package" transient-focussed="true"><div class="paragraph body-paragraph" name="Documentation" data-id="kr3XHmdj"><div data-type="content" type="text/html" codemirror="true" contenteditable="true" class="section-documentation" data-gramm_id="3f8994c7-5b2c-d999-20af-59c4b0f770bd" data-gramm="true" spellcheck="false" data-gramm_editor="true"><h2>Bar Chart</h2><div>Your description...</div></div></div><div class="paragraph data-paragraph locked collapsed" name="Properties" data-id="n9tdWfme"><pre data-type="content" type="application/json" class="section-properties" contenteditable="false">{
+	"version": "0.3.6",
+	"icon": "your_material_icon_string",
+	"description": "Visualization Component for Bar Chart that works for a categorical variable",
+	"tags": [
+		"vistrate",
+		"chart",
+		"visualization"
+	],
+	"dependencies": [
+		{
+			"id": "kTKppb2i",
+			"name": "Vistrate",
+			"optional": false
+		},
+		{
+			"id": "2DQH3q7U",
+			"name": "Vistrate standard library",
+			"optional": false
+		}
+	],
+	"changelog":
+	{
+    "0.3.6": "Improved bar height to match available height",
+    "0.3.5": "Minor bug fix.",
+    "0.3.4": "Fixed label misalign",
+    "0.3.3": "Only use viewbox to specify svg dimensions.",
+    "0.3.2": "Run on add.",
+    "0.3.1": "When not data is connected, there is now a default view.",
+		"0.3": "Made selection synchronized and the output a searchjs query.",
+    "0.2.2": "Fixed Size",
+		"0.2": "Fixed CSS backgrounds and highlighting, and filtering of data.",
+		"0.1": "Initial version."
+	},
+  "github": {
+    "url": "https://github.com/karthikbadam/Vistrates",
+    "folder": "Visualization/iDVb5ncn-BarChart"
+  }
+}</pre></div><div class="paragraph code-paragraph collapsed" name="Bar Chart" data-id="tc5KaWvV" last-execution-state="success"><pre data-type="content" type="text/javascript-viscontroller" class="viscontroller run-on-add" id="barChart">vc = {
+	data: '$data-id',
+	src: ["data"],
+	props: ["x", "y"],
+	libs: ['https://d3js.org/d3.v4.min.js'],
+	init: function() {
+		let size = this.view.parent.getBoundingClientRect();
+        
+    this.width = size.width &gt; 720 ? size.width : 720;
+    this.height = size.height &gt; 540 ? size.height : 540;
+		
+    this.view.content = `&lt;svg class="barChart" viewbox="0 0 ${this.width} ${this.height}"&gt;&lt;/svg&gt;`;
+    
+		let that = this;
+		this.getQueryObject = require("#stdlib-query").getQueryObject;
+		
+		// Creating variables and scales 
+		let svg = d3.select(this.view.element.querySelector("svg")).append("g") //Removed specific id
+			.attr("class", "container");
+		
+		let x = d3.scaleLinear();
+		let y = d3.scaleBand().padding(0.1);
+    
+    this.update_highlights = function(){
+      
+      if(Object.keys(this.data).length === 0) return;
+      svg.selectAll("rect").each(function (e) {
+        if (that.data[that.props.x].includes(e.key)) {
+          d3.select(this).classed("highlight", true);
+        }
+        else{
+          d3.select(this).classed("highlight", false);
+        }
+			});
+      
+      let output = {_join: "OR", terms: []};
+      Object.keys(this.data).forEach((k) =&gt; {
+        this.data[k].forEach((v) =&gt; {
+          let obj = {};
+        	obj[k]  = v;
+          output.terms.push(this.getQueryObject(obj));
+        }); 
+      });
+      if(output.terms.length === 0){
+        output = {};
+      }
+      this.output = output;
+      
+    };
+   	
+    this.draw_default = () =&gt; {
+      svg = d3.select(this.view.element.querySelector("svg"));
+				//.attr("width", 700)
+				//.attr("height", 300);
+      
+      svg.select(".container").remove();
+      
+			svg.append("g").attr("class", "container")
+        .append("text")
+      	.attr("x", 50)
+      	.attr("y", 50)
+        .attr("class", "noData").text("No data is connected");
+    };
+    
+		// Draw function that can be called with new data to render
+		this.draw = () =&gt; {
+      let data = [];
+      that.src.data.output.forEach((d) =&gt; {
+        data.push({key: d[that.props.x], value: d[that.props.y]});
+      });
+      
+			let type = this.props.x;
+			let margin = {
+				left: 50,
+				right: 50, 
+				top: 50, 
+				bottom: 20
+			};
+			let width = 700 - margin.left - margin.right;
+			let height = this.height - margin.top - margin.bottom;
+			svg = d3.select(this.view.element.querySelector("svg"));
+				//.attr("width", width + margin.left + margin.right)
+				//.attr("height", height + margin.top + margin.bottom);
+      
+      svg.select(".container").remove();
+			
+      svg = svg.append("g")
+      	.attr("class", "container")
+				.attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+			let startX, startY, lastX, lastY, pressTimer;
+			
+			// Scale the range of the data
+			x.domain([0, d3.max(data, function(d) { return d.value; })])
+				.range([0, width]);
+			y.domain(data.map(function(d) { return d.key; }))
+				.range([height, 0]);
+			
+			// Add the bars.
+			let bars = svg.selectAll(".rect_mark")
+				.data(data, function (d) {
+					return d.key;
+				});
+			
+			//Enter
+			let newBars = bars.enter().append("g")
+				.attr("class", "rect_mark");
+
+			newBars.append("rect")
+				.attr("x", 0)
+				.attr("y", function (d, i) {
+					return y(d.key);
+				})
+				.attr("width", function (d, i) {
+						return x(d.value);
+				})
+				.attr("height", y.bandwidth())
+				.on("pointerdown", function (d) {
+					var elem = d3.select(this);
+					// Set timeout
+					startX = d3.event.pageX;
+					startY = d3.event.pageY;
+				
+					//if long click of 1sec then reset else, concatnate selections
+					pressTimer = window.setTimeout(function () {
+						
+						var dist = 0;
+						if (startX &amp;&amp; startY &amp;&amp; lastY &amp;&amp; lastX)
+							dist = Math.sqrt(Math.pow(lastX - startX, 2) + Math.pow(lastY - startY, 2));
+
+						if (dist &gt; 15) {
+							return;
+						}
+						
+						// reset all elements
+						let t = {};
+						t[type] = [];
+						that.data = t;
+						
+						pressTimer = undefined;
+						
+					}, 1000);
+				})
+				.on("pointermove", function (d) {
+					lastX = d3.event.pageX;
+					lastY = d3.event.pageY;
+					var distance = Math.sqrt(Math.pow(lastX - startX, 2) + Math.pow(lastY - startY, 2));
+					if (distance &gt; 15) {
+						clearTimeout(pressTimer);
+					}
+					return false;
+				})
+				.on("pointerup", function (d) {
+					if (that.data &amp;&amp; type in that.data &amp;&amp; that.data[type].length &gt;= 0) {
+						let t = that.data;
+						if (t[type].indexOf(d.key) &gt;= 0) {
+							// reset one element
+							t[type].splice(t[type].indexOf(d.key), 1);
+						} else {
+							t[type].push(d.key);
+						}
+						that.data = t;
+					} else {
+						let t = {};
+						t[type] = [d.key];
+						that.data = t;
+					}
+					clearTimeout(pressTimer);
+				});
+		
+			newBars.append("text")
+				.attr("x", function (d, i) {
+					return x(d.value) &lt; width * 0.8 ? x(d.value) + 2 : x(d.value) - 35;
+				})
+				.attr("y", function (d, i) {
+					return y(d.key) + y.bandwidth()/2;
+				})
+				.attr("alignment-baseline", "middle")
+				.text(function (d, i) {
+					return d.value;
+				});
+			
+			//Update
+			bars.select("rect")
+				.attr("y", function (d, i) {
+					return y(d.key);
+				})
+				.attr("width", function (d, i) {
+					return x(d.value);
+				})
+				.attr("height", y.bandwidth());
+			
+			bars.select("text")
+				.attr("x", function (d, i) {
+					return x(d.value) &lt; width * 0.8 ? x(d.value) + 2 : x(d.value) - 35;
+				})
+				.attr("y", function (d, i) {
+					return y(d.key) + y.bandwidth()/2;
+				})
+				.attr("alignment-baseline", "middle")
+				.text(function (d, i) {
+					return d.value;
+				});
+			
+			//Exit
+			bars.exit().remove();
+			
+			// Add the X Axis
+			let xAxis = svg.selectAll(".x.axis").data([data]);
+			
+			xAxis.enter().append("g").attr("class", "x axis")
+				.attr("transform", "translate(0,0)")
+				.call(d3.axisTop(x));
+			
+			xAxis.call(d3.axisTop(x));
+			
+			// Add the Y Axis
+			let yAxis = svg.selectAll(".y.axis").data([data]);
+			
+			yAxis.enter().append("g").attr("class", "y axis")
+				.call(d3.axisLeft(y));
+			
+			yAxis.call(d3.axisLeft(y));
+			  
+      this.update_highlights();
+		};
+        
+	},
+	destroy: function() {
+
+	},
+	update: function() {
+    if(source === "ownData"){
+      this.update_highlights();
+    }
+		else {
+      if (!this.src.data || !this.src.data.output || !this.props.x || !this.props.y) {this.draw_default();}
+      else{this.draw();}
+    }
+	},
+};</pre></div><div class="paragraph data-paragraph collapsed" name="Bar Chart data" data-id="JBSrLEa6"><pre data-type="content" type="application/json" id="barChart-data" class="visdata">{
+  "config": {
+    "src": {
+      "data": ""
+    },
+    "view": "$view-id"
+  },
+  "data": {
+  }
+}</pre></div><div class="paragraph body-paragraph" name="Bar Chart view" data-id="rUBCp3pm" style=""><div data-type="content" type="text/html" codemirror="true" contenteditable="true" id="barChart-view" class="visview" spellcheck="true"></div></div><div class="paragraph style-paragraph collapsed" data-id="mQjAzZqh" name="Bar Chart style" draggable="false" style=""><style data-type="content" type="text/css" codemirror="true" class="skip">.barChart {
+	font-size: 12px;
+	background-color: white;
+}
+
+.noData {
+	font-size: 16px;
+  fill: black;
+}
+
+.barChart .tick text {
+	fill: black;
+}
+
+.barChart .tick line {
+	stroke: black;
+}
+
+.barChart .domain {
+	stroke: black;
+}
+
+.barChart .rect_mark rect {
+	fill: steelblue;
+	cursor: default;
+}
+
+.barChart .rect_mark text {
+	fill: black;
+	pointer-events: none;
+}
+
+.barChart .highlight {
+	stroke: #222!important;
+	stroke-width: 1px;
+	fill-opacity: 0.5;
+}</style></div></div>
