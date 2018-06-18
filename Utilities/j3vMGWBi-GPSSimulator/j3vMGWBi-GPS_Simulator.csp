@@ -1,0 +1,68 @@
+<div class="section section-visible hide-collapsed-paragraphs" name="GPS Simulator" data-type="package" data-id="j3vMGWBi" transient-focussed="true"><div class="paragraph body-paragraph" name="Documentation" data-id="AtXfnh6n"><div data-type="content" type="text/html" codemirror="true" contenteditable="true" class="section-documentation"><h2>GPS Simulator</h2><div>Simulates a series of gps positions by linearly interpolating the positions in the data.locations list.&nbsp;</div></div></div><div class="paragraph data-paragraph collapsed" name="Properties" data-id="bafK3cf9"><pre data-type="content" type="application/json" class="section-properties" contenteditable="true">{
+	"version": "0.1.1",
+	"icon": "your_material_icon_string",
+	"description": "GPS simulator.",
+	"tags": [
+		"vistrate",
+    "data"
+	],
+	"dependencies": [
+		{
+			"id": "kTKppb2i",
+			"name": "Vistrate",
+			"optional": false
+		}
+	],
+	"changelog":
+	{
+		"0.1.1": "Minor import bug fix.",
+    "0.1": "Initial version."
+	},
+  "github": {
+    "url": "https://github.com/karthikbadam/Vistrates",
+    "folder": "Utilities/j3vMGWBi-GPSSimulator"
+  }
+  
+}</pre></div><div class="paragraph code-paragraph collapsed" name="GPS Simulator" data-id="dCG3sVqb"><pre data-type="content" type="text/javascript-viscontroller" class="viscontroller" id="gPSSimulator">vc = {
+	data: '$data-id',
+	src: [],
+	libs: ["leaflet.zip/leaflet.js"],
+	init: function() { 
+    let that = this;
+    let result = [];
+    if(this.data.locations.length === 1){
+      result = this.data.locations;
+    }
+    else{
+      for(let i=1; i&lt;this.data.locations.length; i++){
+        let from = L.latLng(this.data.locations[i-1].lat, this.data.locations[i-1].lng);
+        let to = L.latLng(this.data.locations[i].lat, this.data.locations[i].lng);
+        let distance = from.distanceTo(to);
+        for(let j=0; j&lt;distance; j += 50){
+          let dt = j/distance;
+          let new_lat = from.lat + (dt * (to.lat-from.lat));
+          let new_lng = from.lng + (dt * (to.lng-from.lng));
+          result.push({lat: new_lat, lng: new_lng});
+        }
+      }
+    }
+    
+    function doSetTimeout(i, o) {
+  		setTimeout(function() {that.output = o; }, i*2000);
+		}
+   
+    for(let i=0; i&lt;result.length; i++){
+      doSetTimeout(i, result[i]);
+    }    
+	}
+};</pre></div><div class="paragraph data-paragraph collapsed" name="GPS Simulator data" data-id="7tDvq2jZ"><pre data-type="content" type="application/json" id="gPSSimulator-data" class="visdata">{
+  "config": {
+    "src": {}
+  },
+  "data": {
+  	"locations": [{
+      "lat": 43.659616,
+      "lng": -79.390513
+    }]
+  }
+}</pre></div></div>
