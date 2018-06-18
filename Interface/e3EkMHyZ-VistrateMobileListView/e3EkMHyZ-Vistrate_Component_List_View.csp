@@ -1,0 +1,324 @@
+<div class="section section-visible collapsed" data-type="package" data-id="e3EkMHyZ" name="Vistrate Component List View" transient-focussed="true"><div class="paragraph body-paragraph" name="Documentation" data-id="9hvns3my"><div data-type="content" type="text/html" codemirror="true" contenteditable="true" class="section-documentation"><h2>Description</h2><div>Vistrate component list view to display a single component with maximal screen real estate. The package adds a new action button to the global toolbar, which adds a new paragraph. The paragraph contains the component list view UI with a button at the bottom right that opens the action menu to select a particular Vistrate component view to be displayed in maximal screen real estate.</div></div></div><div class="paragraph data-paragraph locked collapsed" name="Properties" data-id="4xnsiB84"><pre data-type="content" type="application/json" class="section-properties" contenteditable="false">{
+  "version": "0.1.6",
+  "icon": "view_list",
+  "description": "Vistrate component list view to display a single component with maximal screen real estate.",
+  "tags": [
+    "Vistrate",
+    "list"
+  ],
+  "dependencies": [
+    {
+      "id": "kTKppb2i",
+      "name": "Vistrate",
+      "optional": false,
+      "usage": "The Vistrate package is required to allow adding components."
+    }
+  ],
+  "changelog": {
+    "0.1": "Initial version.",
+    "0.1.1": "Fixed style to center component views and make it possible to span 100% width and height.",
+    "0.1.2": "Center component views when they don't fill the whole list view.",
+    "0.1.3": "Matching Clemens' amazing view.moveTo and view.moveBack API ;).",
+    "0.1.4": "Removed debugging color.",
+    "0.1.5": "Made action menu work with many items (scrollable container).",
+    "0.1.6": "Trigger window resize event on adding a component to the list to make it resize, especially the map view."
+  },
+  "github": {
+    "url": "https://github.com/karthikbadam/Vistrates",
+    "folder": "Interface/e3EkMHyZ-VistrateMobileListView"
+  }
+}</pre></div><div class="paragraph style-paragraph collapsed" data-id="EM9KjKg7" name="Toolbar Style"><style data-type="content" type="text/css" codemirror="true">/* @media only screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) {
+  .vistrate-component-list-view {
+    background-color: orange !important;
+    width: 375px;
+    height: calc(812px - 177px);
+  }
+} */
+
+html #global-toolbar .vistrate-component-list-view-icon i:after {
+	content: "view_list";
+}</style></div><div class="paragraph code-paragraph collapsed" data-id="6S4GDqRj" last-execution-state="success" name="Watch for data-element-ref to link Vistrate component view" run-on-load="true"><pre data-type="content" type="text/javascript">const watchCanvasesForComponentContainers = () =&gt; {
+
+  const liveSelector = document.liveQuerySelectorAll('.vistrate-component-list-view');
+  liveSelector.added((listView) =&gt; {
+
+    const canvasObjectSelector = listView.liveQuerySelectorAll('element[data-ref]');
+    canvasObjectSelector.added((elementRef) =&gt; {
+      //       window.console.log('added', elementRef.dataset.ref);
+
+      // check if canvas object has a data-ref attribute
+
+      const refId = elementRef.dataset.ref;
+      if (refId) {
+        const component = Vistrate.getOutput(refId);
+        //         elementRef.appendChild(component.view.element);
+        component.view.moveTo(elementRef);
+
+        setTimeout(() =&gt; {
+          window.dispatchEvent(new Event('resize'));
+        }, 0);
+      }
+    });
+    canvasObjectSelector.removed((elementRef) =&gt; {
+      //       window.console.log('removed', canvasObject.dataset.ref);
+
+      const refId = elementRef.dataset.ref;
+      if (refId) {
+        const component = Vistrate.getOutput(refId);
+        // putting the component view back to where it came from
+        //         component.view.parent.appendChild(elementRef.querySelector('.visview'));
+        component.view.moveBack();
+      }
+    });
+  });
+};
+
+Codestrate.addEventListener("loaded", function onLoaded() {
+  Codestrate.removeEventListener("loaded", onLoaded);
+  setTimeout(() =&gt; {
+    watchCanvasesForComponentContainers();
+  }, 0);
+});</pre></div><div class="paragraph code-paragraph collapsed" name="Initialize component list view" data-id="eNaA2HYC" last-execution-state="success" run-on-load="true"><pre data-type="content" type="text/javascript">const linkToByElementRef = (target, componentId) =&gt; {
+  
+  // remove old element ref
+  const oldElementRef = target.querySelector('element[data-ref]');
+  if (oldElementRef) {
+    oldElementRef.remove();
+  }
+  
+  const elementRef = document.createElement("element");
+  elementRef.dataset.ref = componentId;
+  target.appendChild(elementRef);
+};
+
+const initListView = (target) =&gt; {
+
+  const actionMenu = document.createElement("transient");
+  actionMenu.classList.add("action-menu");
+  target.appendChild(actionMenu);
+
+  const list = document.createElement("ul");
+  list.classList.add("components-list");
+  list.classList.add("z-depth-1", "grey-text", "text-darken-2");
+  actionMenu.appendChild(list);
+
+  const view = document.createElement("transient");
+  view.classList.add("component-view");
+  target.appendChild(view);
+
+  const openListButton = document.createElement("transient");
+  openListButton.classList.add("open-list-button");
+
+  const openListIcon = document.createElement("i");
+  openListIcon.classList.add("material-icons");
+  openListIcon.innerText = "menu";
+  openListButton.appendChild(openListIcon);
+
+  openListButton.addEventListener("click", () =&gt; {
+
+    if (actionMenu.classList.toggle("open")) {
+      list.innerHTML = '';
+
+      Object.values(Vistrate.outputs).forEach((component) =&gt; {
+
+        // only show component views from sections that are visible
+        const section = component.paragraph.closest('.section');
+        if (section.classList.contains("section-hidden")) return;
+
+        if (component.view) {
+          window.console.log('component', component.view);
+
+          const item = document.createElement("li");
+
+          const label = document.createElement("span");
+          label.innerText = component.friendlyName;
+          item.appendChild(label);
+
+          const icon = document.createElement("i");
+          icon.classList.add("material-icons");
+          icon.innerText = "fiber_manual_record";
+          item.appendChild(icon);
+
+//           item.addEventListener("touchend", () =&gt; {
+//             linkToByElementRef(target, component.id);
+//           });
+
+          item.addEventListener("click", (event) =&gt; {
+            linkToByElementRef(target, component.id);
+          });
+          list.appendChild(item);
+        }
+      });
+    }
+  });
+
+  const closeOnOutsideAction = (event) =&gt; {
+    window.console.log('close action menu', !event.target.closest('.open-list-button'));
+    if (event.target.closest('.open-list-button')) return;
+    actionMenu.classList.remove("open");
+  };
+
+  target.addEventListener("click", closeOnOutsideAction, true);
+//   target.addEventListener("touchend", closeOnOutsideAction, true);
+
+  target.appendChild(openListButton);
+};
+
+const liveSelector = document.liveQuerySelectorAll('.paragraph .vistrate-component-list-view[data-type="content"]');
+liveSelector.added((container) =&gt; {
+  initListView(container);
+});</pre></div><div class="paragraph code-paragraph collapsed" name="Add to global toolbar" data-id="fTXeKV4P" run-on-load="true" last-execution-state="success"><pre data-type="content" type="text/javascript">const GlobalToolbarUtils = require('#global-toolbar-utils');
+const ParagraphUtils = require('#paragraph-utils');
+
+Codestrate.addCommand("vistrate.addComponentListView", "Add Component List View", () =&gt; {
+	const paragraph = ParagraphUtils.createBodyParagraph();
+	const content = paragraph.querySelector('[data-type="content"]');
+  // lock paragraph
+  content.setAttribute("contenteditable", "false");
+  content.classList.add("vistrate-component-list-view");
+
+	ParagraphUtils.insertParagraphAfterFocussed(paragraph);
+});
+
+GlobalToolbarUtils.addDivider(1, "vistrate-package");
+GlobalToolbarUtils.addButton("Add Component List View", "", "vistrate-component-list-view-icon", 1, () =&gt; {
+	Codestrate.executeCommand("vistrate.addComponentListView");
+});</pre></div><div class="paragraph style-paragraph collapsed" name="Component List View Style" draggable="false" data-id="rRV2eQaz" style=""><style data-type="content" type="text/css" codemirror="true">.vistrate-component-list-view {
+  position: relative;
+  min-height: 500px;
+  background-color: white;
+  color: var(--color-accent-text);
+}
+
+html.fullscreen:not([transient-fullscreen="false"]) .vistrate-component-list-view .action-menu,
+html[transient-fullscreen="true"] .action-menu,
+html.fullscreen:not([transient-fullscreen="false"]) .vistrate-component-list-view .open-list-button,
+html[transient-fullscreen="true"] .open-list-button {
+  position: fixed;
+}
+
+.vistrate-component-list-view .action-menu {
+  position: absolute;
+  display: block;
+  bottom: 0;
+  z-index: 102;
+  width: 100%;
+  max-height: 400px;
+  overflow: auto;
+  
+/*   opacity: 0; */
+  transform: translate3d(0, 100%, 0);
+  transition: transform 250ms ease-in-out, opacity 150ms ease-in-out;
+  
+  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2),
+    0px 6px 10px 0px rgba(0, 0, 0, 0.14),
+    0px 1px 18px 0px rgba(0, 0, 0, 0.12);
+}
+
+.vistrate-component-list-view .action-menu.open {
+  opacity: 1;
+  transform: none;
+}
+
+.vistrate-component-list-view .open-list-button {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 101;
+  cursor: pointer;
+  
+  color: #fff;
+  background-color: #2196f3;
+  
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  min-width: 0;
+  font-size: 24px;
+  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2),
+    0px 6px 10px 0px rgba(0, 0, 0, 0.14),
+    0px 1px 18px 0px rgba(0, 0, 0, 0.12);
+  border-radius: 50%;
+}
+
+.vistrate-component-list-view .open-list-button .material-icons {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate3d(-50%, -50%, 0);
+}
+
+.vistrate-component-list-view element[data-ref]:before {
+  content: "View: " attr(data-ref);
+  position: fixed;
+  top: 0;
+  left: 0;
+  padding: 3px 6px;
+  font-size: .6em;
+  z-index: 999;
+}
+
+html.fullscreen:not([transient-fullscreen="false"]) .vistrate-component-list-view element[data-ref],
+html[transient-fullscreen="true"] .vistrate-component-list-view element[data-ref] {
+  position: fixed;
+}
+
+.vistrate-component-list-view element[data-ref] {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate3d(-50%, -50%, 0);
+/*   display: block; */
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+/*   background-color: orange; */
+}
+
+.vistrate-component-list-view element[data-ref] > .visview {
+  flex: 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+}
+
+.vistrate-component-list-view .components-list {
+  margin: 0 !important;
+  padding: 8px 0;
+  height: 100%;
+  width: 100%;
+  list-style: none;
+	list-style-type: none;
+  z-index: 101;
+  
+  box-sizing: border-box;
+  background: #fff;
+  border-radius: 2px;
+}
+
+.vistrate-component-list-view .components-list li {
+  cursor: pointer;
+  
+  position: relative;
+  box-sizing: border-box;
+  padding: 16px 72px;
+/*   width: 100%; */
+  transition: .3s;
+  text-align: left !important;
+  white-space: nowrap;
+  display: flex;
+	align-items: center;
+}
+
+.vistrate-component-list-view .components-list li:hover {
+  background-color: #eee;
+}
+
+.vistrate-component-list-view .components-list li:not(.separator) .material-icons {
+  position: absolute;
+  left: 24px;
+}</style></div></div>
