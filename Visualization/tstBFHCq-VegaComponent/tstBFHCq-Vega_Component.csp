@@ -1,0 +1,88 @@
+<div class="section section-visible hide-collapsed-paragraphs" data-type="package" name="Vega Component" data-id="tstBFHCq" transient-focussed="true"><div class="paragraph body-paragraph" name="Documentation" data-id="hVVJqX63"><div data-type="content" type="text/html" codemirror="true" contenteditable="true" class="section-documentation"><h2>Vega Component</h2><div>Makes it possible to write a Vega (lite) spec for a component</div></div></div><div class="paragraph data-paragraph locked collapsed" name="Properties" data-id="cEM7Tkeh"><pre data-type="content" type="application/json" class="section-properties" contenteditable="false">{
+	"version": "0.4",
+	"icon": "your_material_icon_string",
+	"description": "Makes it possible to write a Vega (lite) spec for a component",
+	"tags": [
+		"vistrate"
+	],
+	"dependencies": [
+		{
+			"id": "kTKppb2i",
+			"name": "Vistrate",
+			"optional": false
+		}
+	],
+	"changelog":
+	{
+		"0.1": "Initial version.",
+		"0.2": "Support for mapping props to vega encoding.",
+		"0.3": "Minor fixes.",
+		"0.4": "Added vegaEmbedConfig option to controller config, e.g., to change renderer to SVG renderer."
+	},
+  "github": {
+    "url": "https://github.com/karthikbadam/Vistrates",
+    "folder": "Visualization/tstBFHCq-VegaComponent"
+  }
+}</pre></div><div class="paragraph code-paragraph collapsed" name="Vega Controller" data-id="G9LCsimB" last-execution-state="success"><pre data-type="content" type="text/javascript-viscontroller" class="viscontroller" id="testComponent" contenteditable="true">vc = {
+	data: '$data-id',
+	src: ["data"], // Assumes array with rows of data
+	props: [],
+	libs: [
+		"https://cdn.jsdelivr.net/npm/vega@3.0.10",
+		"https://cdn.jsdelivr.net/npm/vega-lite@2.1.3",
+		"https://cdn.jsdelivr.net/npm/vega-embed@3.0.0"
+	],
+	init: function() {
+		if (!this.view) return;
+		this.vegaEmbed = vegaEmbed;
+		this.insertPropsInSpec = (spec) =&gt; {
+			if (!spec.encoding) return spec;
+			Object.keys(this._props).forEach((prop) =&gt; {
+				Object.keys(spec.encoding).forEach((enc) =&gt; {
+					if (enc === prop) {
+						spec.encoding[enc].field = this.props[prop]; 
+					}
+				});	
+			});			
+		};
+	},
+	destroy: function() {
+		if (this.view) this.view.content = "";
+	},
+	update: function(source) {
+		if (!this.view) return; 
+		const spec = this.data.spec;
+		if (!spec) return;
+		this.insertPropsInSpec(spec);
+		this.view.content = "&lt;div class='vega-vis'&gt;&lt;/div&gt;";
+		
+		// get vega embed config from controller config
+		const vegaEmbedConfig = (this.config &amp;&amp; this.config.vegaEmbedConfig) || {};
+		
+		// merge configurations
+		const config = Object.assign({}, {
+			actions: false
+		}, vegaEmbedConfig);
+		
+		let vl = this.vegaEmbed(this.view.element.querySelector(".vega-vis"), spec, config).then((vl) =&gt; {
+			if (this.src.data) vl.view.insert("vegaData", this.src.data.output);
+			vl.view.run();
+		});
+	}
+};</pre></div><div class="paragraph data-paragraph collapsed" name="Vega Controller Data" data-id="GsiQD2aq"><pre data-type="content" type="application/json" id="testComponent-data" class="visdata" contenteditable="true">{
+  "config": {
+    "src": {"data": ""},
+    "view": "$view-id",
+		"props": {},
+		"vegaEmbedConfig": {
+			"renderer": "svg"
+		}
+  },
+  "data": {
+		"spec": {
+      }
+    }
+}</pre></div><div class="paragraph style-paragraph collapsed" data-id="qBfun3fM" name="Vega view style"><style data-type="content" type="text/css" codemirror="true">.vega-vis {
+	background-color: white;
+	text-align: center;
+}</style></div><div class="paragraph body-paragraph" name="Vega Component view" data-id="396DsEX8"><div data-type="content" type="text/html" codemirror="true" contenteditable="true" id="testComponent-view" class="visview"></div></div></div>
