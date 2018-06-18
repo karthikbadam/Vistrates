@@ -1,0 +1,369 @@
+<div class="section section-visible" data-id="3HvceM54" name="TraLuver Slide Template" data-type="package" transient-focussed="true"><div class="paragraph body-paragraph locked" name="Documentation" data-id="kn6Tbm29"><div data-type="content" type="text/html" codemirror="true" contenteditable="false" class="section-documentation"><h2>Description</h2><div>This package provides a TraLuver slide template for the Presentations package.</div></div></div><div class="paragraph data-paragraph locked collapsed" name="Properties" data-id="994z4E3V"><pre data-type="content" type="application/json" class="section-properties" contenteditable="false">{
+  "version": "1.0",
+  "icon": "style",
+  "description": "This package provides a TraLuver slide template for the Presentations package.",
+  "tags": [
+    "presentation",
+    "template"
+  ],
+  "dependencies": [
+    {
+      "id": "qcWPfzfc",
+      "name": "Presentations",
+      "optional": false,
+      "usage": "The basic slide template only works together with the Presentations package."
+    }
+  ],
+  "changelog": {
+    "1.0": "Initial version."
+  },
+  "github": {
+    "url": "https://github.com/karthikbadam/Vistrates",
+    "folder": "Presentation/3HvceM54-TraLuverSlideTemplate"
+  }
+}</pre></div><div class="paragraph code-paragraph collapsed" data-id="biGZDKab" last-execution-state="success" run-on-load="true" name="Install basic slide template" draggable="false" style=""><pre data-type="content" type="text/javascript">const PresentationConfig = require('#presentation-config');
+PresentationConfig.addSlideTemplate("TraLuver");</pre></div><div class="paragraph style-paragraph collapsed" data-id="Yv92JHFr" name="TraLuver Slide Style" style=""><style data-type="content" type="text/css" codemirror="true">html .paragraph .slide[slide-template="TraLuver"][data-type="content"],
+html .paragraph .slide[slide-template="TraLuver"] .slide-content {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: "Roboto", "Avenir", sans-serif;
+  font-weight: 400;
+}
+
+/******************************************************************************/
+
+html .paragraph .slide[slide-template="TraLuver"] .slide-content ul,
+html .paragraph .slide[slide-template="TraLuver"] .slide-content ol {
+  margin-left: 1rem;
+}
+
+/******************************************************************************/
+
+html .slide[slide-template="TraLuver"] .slide-content {
+  background: var(--material-color-white);
+  color: var(--material-color-black);
+  font-size: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content h1 {
+  font-size: 96px;
+}</style></div><div class="paragraph style-paragraph collapsed" data-id="zXb5uycG" name="TraLuver Components" style="" draggable="false"><style data-type="content" type="text/css" codemirror="true" class="themable persistent">/* Hack for a margin without increasing the size of the element */
+html .slide[slide-template="TraLuver"] .slide-content {
+  box-sizing: border-box !important;
+  border: 48px solid rgba(0, 0, 0, 0);
+}
+
+/******************************************************************************/
+
+html .slide[slide-template="TraLuver"] .slide-content .no-padding {
+  padding: 0 !important;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .no-margin {
+  margin: 0 !important;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .center,
+html .slide[slide-template="TraLuver"] .slide-content .middle,
+html .slide[slide-template="TraLuver"] .slide-content .left,
+html .slide[slide-template="TraLuver"] .slide-content .right,
+html .slide[slide-template="TraLuver"] .slide-content .top,
+html .slide[slide-template="TraLuver"] .slide-content .bottom {
+  display: flex;
+  flex-direction: column;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .center {
+  align-items: center;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .left {
+  align-items: flex-start;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .right {
+  align-items: flex-end;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .middle {
+  justify-content: center;
+  height: 100%;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .top {
+  justify-content: flex-start;
+  height: 100%;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .bottom {
+  justify-content: flex-end;
+  height: 100%;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .middle-self {
+  justify-self: center;
+}
+
+/******************************************************************************/
+
+html .slide[slide-template="TraLuver"] .slide-content .split-h {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .split-v {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .split-h > *,
+html .slide[slide-template="TraLuver"] .slide-content .split-v > * {
+  flex: 1 1 50%;
+  margin: 0 !important;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .split-h > * + * {
+  margin-left: 32px !important;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .split-v > * + * {
+  margin-top: 32px !important;
+}
+
+/******************************************************************************/
+
+html .slide[slide-template="TraLuver"] .slide-content slide-content,
+html .slide[slide-template="TraLuver"] .slide-content render-to,
+html .slide[slide-template="TraLuver"] .slide-content render-to > transient,
+html .slide[slide-template="TraLuver"] .slide-content iframe {
+  width: 100%;
+  height: 100%;
+}
+
+/******************************************************************************/
+
+html .slide[slide-template="TraLuver"] .slide-content h1,
+html .slide[slide-template="TraLuver"] .slide-content h2,
+html .slide[slide-template="TraLuver"] .slide-content h3 {
+  margin: 0;
+}
+
+/* Title */
+html .slide[slide-template="TraLuver"] .slide-content h1:first-of-type {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) translateY(-48px);
+  width: 100%;
+  text-align: center;
+}
+
+/* Slide Header */
+html .slide[slide-template="TraLuver"] .slide-content h2:first-of-type {
+  margin-bottom: 96px;
+}
+
+/* Subtitle */
+html .slide[slide-template="TraLuver"] .slide-content h3:first-of-type {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) translateY(48px);
+  width: 100%;
+  text-align: center;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content a {
+  color: orange !important;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .keyword {
+  position: absolute;
+  left: 10%;
+  top: 40%;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .slogan {
+  position: absolute;
+  top: 40%;
+  left: 10%;
+  width: 80%;
+  margin-top: 120px;
+  margin-left: 20px;
+  font-size: .8em;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content ul.items {
+  list-style: none;
+  font-size: .7em;
+  width: 90% !important;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content ul.items li {
+  padding-bottom: 55px;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .highlight {
+  font-weight: bold;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .image-footer {
+  display: block;
+  text-align: center;
+  font-size: .4em;
+  width: 100%;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .fill {
+  width: 100%;
+  height: 100%;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .fill-horizontal {
+  width: 100%;
+  height: auto;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .fill-vertical {
+  width: auto;
+  height: 100%;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .center-with-title {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translate3d(-50%, -50%, 0);
+  width: auto;
+  height: 70%;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate3d(-50%, -50%, 0);
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .slide-title {
+  position: absolute;
+  top: 80px;
+  left: 10px;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, .75);
+  border-radius: 2px;
+  z-index: 2;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .slide-title.right {
+  display: inline-block;
+  left: 82%;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .slide-title-focus {
+  font-size: .6em;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .full-publication {
+  position: absolute;
+  font-size: .6em;
+  top: 60%;
+  left: 50%;
+  width: 80%;
+  transform: translate3d(-50%, -50%, 0);
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .left-box,
+html .slide[slide-template="TraLuver"] .slide-content .right-box {
+  width: 45%;
+  float: left;
+  position: absolute;
+  top: 50%;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .left-box {
+  left: 25%;
+  transform: translate3d(-50%, -50%, 0);
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .right-box {
+  left: 75%;
+  transform: translate3d(-50%, -50%, 0);
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .topleft-box,
+html .slide[slide-template="TraLuver"] .slide-content .topright-box,
+html .slide[slide-template="TraLuver"] .slide-content .bottomleft-box,
+html .slide[slide-template="TraLuver"] .slide-content .bottomright-box {
+  position: absolute;
+  width: 45%;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .topleft-box .copyright,
+html .slide[slide-template="TraLuver"] .slide-content .topright-box .copyright,
+html .slide[slide-template="TraLuver"] .slide-content .bottomleft-box .copyright,
+html .slide[slide-template="TraLuver"] .slide-content .bottomright-box .copyright {
+  margin-bottom: 25px;
+  max-width: 90%;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .topleft-box {
+  top: 20px;
+  left: 60px;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .topright-box {
+  top: 20px;
+  right: 60px;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .bottomleft-box {
+  bottom: 5px;
+  left: 60px;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .bottomright-box {
+  bottom: 5px;
+  right: 60px;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .publication {
+  display: flex;
+  align-items: flex-end;
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, .75);
+  border-radius: 2px;
+  font-size: .4em;
+  max-width: 50%;
+  z-index: 2;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .publication .cover {
+  min-height: 100px;
+  min-width: 100px;
+  max-height: 150px;
+  background-size: contain;
+  margin-right: 10px;
+}
+
+html .slide[slide-template="TraLuver"] .slide-content .copyright {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, .75);
+  border-radius: 2px;
+  font-size: .4em;
+  max-width: 50%;
+  z-index: 2;
+}</style></div></div>
