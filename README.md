@@ -1,6 +1,6 @@
 # Vistrates Framework and Packages
 
-Vistrates is an extension to [Codestrates](https://github.com/Webstrates/Codestrates). It provides additonal features for visualization and data analytics, which can be easily added to or removed. But first remember to install the Vistrates package, which contains the core framework, on a codestrate to create a vistrate.
+Vistrates is an extension to [Codestrates](https://github.com/Webstrates/Codestrates). It provides features for visualization and data analytics in the form of components, which can be easily added or removed. But, first remember to install the Vistrates package, which contains the core framework, on a codestrate to turn it into a vistrate.
 
 ## Installation
 
@@ -26,4 +26,4 @@ Vistrates is a research prototype in active development. Many features are still
 
 ---
 
-<p align="center">&copy;&nbsp;2018&nbsp;Sriram Karthik Badam,&nbsp;Andreas Mathisen,&nbsp;Roman Rädle,&nbsp;Clemens Klokmose,&nbsp;Niklas Elmqvist</p>
+<p align="center">&copy;&nbsp;2018&nbsp;Sriram Karthik Badam,&nbsp;Andreas Mathisen,&nbsp;Roman Rädle,&nbsp;Clemens Klokmose,&nbsp;and Niklas Elmqvist</p>
