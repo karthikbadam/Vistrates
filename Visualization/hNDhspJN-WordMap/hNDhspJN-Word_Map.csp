@@ -1,0 +1,459 @@
+<div class="section section-visible hide-collapsed-paragraphs collapsed" name="Word Map" data-type="package" data-id="hNDhspJN" draggable="false" style="" transient-focussed="true"><div class="paragraph body-paragraph" name="Documentation" data-id="U2WVRx9D"><div data-type="content" type="text/html" codemirror="true" contenteditable="true" class="section-documentation"><h2>Word Map</h2><div>Component for Word Embedding on a map that works on output from Tf-Idf Accessor</div></div></div><div class="paragraph data-paragraph locked collapsed" name="Properties" data-id="Et95fHGx"><pre data-type="content" type="application/json" class="section-properties" contenteditable="false">{
+	"version": "0.1.3",
+	"icon": "your_material_icon_string",
+	"description": "Component for Word Embedding that works on output from Tf-Idf Accessor",
+	"tags": [
+		"vistrate", "text analytics", "gps", "tfidf"
+	],
+	"changelog":
+	{
+    "0.1.3": "Changed to run on load",
+    "0.1.2": "Fixed minor bug",
+    "0.1.1": "Fixed rendering and style",
+    "0.1": "Initial version of the word embedding on the map"
+	},
+  "github": {
+    "url": "https://github.com/karthikbadam/Vistrates",
+    "folder": "Visualization/hNDhspJN-WordMap"
+  }
+}</pre></div><div class="paragraph code-paragraph collapsed" name="Word Map" data-id="QZEnED6R" last-execution-state="success"><pre data-type="content" type="text/javascript-viscontroller" class="viscontroller run-on-add" id="wordMap">vc = {
+	data: '$data-id',
+	src: ['data'],
+	props: ["lat", "lng", "name"],
+  libs: ["leaflet.zip/leaflet.js", "https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js", 'https://d3js.org/d3.v4.min.js'],
+	init: function() {
+    
+    importStyle(["leaflet.zip/leaflet.css",
+                 "https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css", "https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css"]);
+    
+    
+    
+    let that = this;
+  	let mapContainer = document.createElement("div");
+		mapContainer.classList.add("leaflet-map-container");
+    this.view.content = mapContainer;
+		L.Icon.Default.imagePath = "leaflet.zip/images/";
+		let map = L.map(mapContainer, { zoomControl:false, scrollWheelZoom: false });
+    map.setView([0, 0], 1);
+     
+    var svg = d3.select(map.getPanes().overlayPane).append("svg").attr("class", "wordMapChart"),
+			g = svg.append("g").attr("class", "leaflet-zoom-hide");
+    
+    // Create the SVG
+    var width = d3.select(".leaflet-map-container").node().offsetWidth, height = d3.select(".leaflet-map-container").node().offsetHeight;
+  
+    var nodes, labels, lines, rects, dots;
+    
+    function rectCollide() {
+      var nodes, sizes, masses;
+      var size = constant([0, 0]);
+      var strength = 1;
+      var iterations = 1;
+
+      function force() {
+        var node, size, mass, xi, yi;
+        var i = -1;
+        while (++i &lt; iterations) { iterate(); }
+
+        function iterate() {
+          var j = -1;
+          var tree = d3.quadtree(nodes, xCenter, yCenter).visitAfter(prepare);
+
+          while (++j &lt; nodes.length) {
+            node = nodes[j];
+            size = sizes[j];
+            mass = masses[j];
+            xi = xCenter(node);
+            yi = yCenter(node);
+
+            tree.visit(apply);
+          }
+        }
+
+        function apply(quad, x0, y0, x1, y1) {
+          var data = quad.data;
+          var xSize = (size[0] + quad.size[0]) / 2;
+          var ySize = (size[1] + quad.size[1]) / 2;
+          if (data) {
+            if (data.index &lt;= node.index) { return; }
+
+            var x = xi - xCenter(data);
+            var y = yi - yCenter(data);
+            var xd = Math.abs(x) - xSize;
+            var yd = Math.abs(y) - ySize;
+
+            if (xd &lt; 0 &amp;&amp; yd &lt; 0) {
+              var l = Math.sqrt(x * x + y * y);
+              var m = masses[data.index] / (mass + masses[data.index]);
+
+              if (Math.abs(xd) &lt; Math.abs(yd)) {
+                node.vx -= (x *= xd / l * strength) * m;
+                data.vx += x * (1 - m);
+              } else {
+                node.vy -= (y *= yd / l * strength) * m;
+                data.vy += y * (1 - m);
+              }
+            }
+          }
+
+          return x0 &gt; xi + xSize || y0 &gt; yi + ySize ||
+            x1 &lt; xi - xSize || y1 &lt; yi - ySize;
+        }
+
+        function prepare(quad) {
+          if (quad.data) {
+            quad.size = sizes[quad.data.index];
+          } else {
+            quad.size = [0, 0];
+            var i = -1;
+            while (++i &lt; 4) {
+              if (quad[i] &amp;&amp; quad[i].size) {
+                quad.size[0] = Math.max(quad.size[0], quad[i].size[0]);
+                quad.size[1] = Math.max(quad.size[1], quad[i].size[1]);
+              }
+            }
+          }
+        }
+      }
+
+      function xCenter(d) { return d.x + d.vx + sizes[d.index][0] / 2; }
+      function yCenter(d) { return d.y + d.vy + sizes[d.index][1] / 2; }
+
+      force.initialize = function (_) {
+        sizes = (nodes = _).map(size);
+        masses = sizes.map(function (d) { return d[0] * d[1]; });
+      };
+
+      force.size = function (_) {
+        return (arguments.length ? (size = typeof _ === 'function' ? _ : constant(_), force) : size);
+      };
+
+      force.strength = function (_) {
+        return (arguments.length ? (strength = +_, force) : strength);
+      };
+
+      force.iterations = function (_) {
+        return (arguments.length ? (iterations = +_, force) : iterations);
+      };
+
+      return force;
+    }
+
+    function boundedBox() {
+        var nodes, sizes;
+        var bounds;
+        var size = constant([0, 0]);
+
+        function force() {
+            var node, size;
+            var xi, x0, x1, yi, y0, y1;
+            var i = -1;
+            while (++i &lt; nodes.length) {
+                node = nodes[i];
+                size = sizes[i];
+                xi = node.x + node.vx;
+                x0 = bounds[0][0] - xi;
+                x1 = bounds[1][0] - (xi + size[0]);
+                yi = node.y + node.vy;
+                y0 = bounds[0][1] - yi;
+                y1 = bounds[1][1] - (yi + size[1]);
+                if (x0 &gt; 0 || x1 &lt; 0) {
+                    node.x += node.vx;
+                    node.vx = -node.vx;
+                    if (node.vx &lt; x0) { node.x += x0 - node.vx; }
+                    if (node.vx &gt; x1) { node.x += x1 - node.vx; }
+                }
+                if (y0 &gt; 0 || y1 &lt; 0) {
+                    node.y += node.vy;
+                    node.vy = -node.vy;
+                    if (node.vy &lt; y0) { node.vy += y0 - node.vy; }
+                    if (node.vy &gt; y1) { node.vy += y1 - node.vy; }
+                }
+            }
+        }
+
+        force.initialize = function (_) {
+            sizes = (nodes = _).map(size);
+        };
+
+        force.bounds = function (_) {
+            return (arguments.length ? (bounds = _, force) : bounds);
+        };
+
+        force.size = function (_) {
+            return (arguments.length ? (size = typeof _ === 'function' ? _ : constant(_), force) : size);
+        };
+
+        return force;
+    }
+
+    function ticked() {
+      labels
+        .attr('x', function (d) { return d.x; })
+        .attr('y', function (d) { return d.y; });
+
+      rects
+        .attr('x', function (d) { return d.x; })
+        .attr('y', function (d) { return d.y; })
+        .attr('width', function (d) { return d.width; });
+
+      lines
+        .attr('x1', function (d) { return d.sx; })
+        .attr('y1', function (d) { return d.sy; })
+        .attr('x2', function (d) { return d.x + d.width / 2; })
+        .attr('y2', function (d) { return d.y + d.height / 2; });
+    }
+
+		var px, py, vx, vy, offsetX, offsetY;
+    
+    function constant(_) {
+      return function () { return _; };
+    }
+    
+    
+    this.draw = () =&gt; {
+      
+      
+      let svg = d3.select(this.view.element.querySelector("svg"))
+      .attr("width", width).attr("height", height);
+      
+      
+      this.right = d3.max(this.src.data.output, (d) =&gt; {
+        	if (!isNaN(d[this.props.lat])) {
+              return d[this.props.lat];
+          }
+      });
+      this.left = d3.min(this.src.data.output, (d) =&gt; {
+        	if (!isNaN(d[this.props.lat])) {
+              return d[this.props.lat];
+          }
+      });
+      this.top = d3.min(this.src.data.output, (d) =&gt; {
+        	if (!isNaN(d[this.props.lng])) {
+              return d[this.props.lng];
+          }
+      });
+      this.bottom = d3.max(this.src.data.output, (d) =&gt; {
+        	if (!isNaN(d[this.props.lng])) {
+              return d[this.props.lng];
+          }
+      });
+     
+
+//       map.fitBounds(new L.LatLngBounds(new L.LatLng(this.left, this.top), new L.LatLng(this.right, this.bottom)));
+      
+      map.fitBounds([[this.left, this.top], [this.right, this.bottom]]);
+
+      L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+        maxZoom: 20,
+        minZoom: 2,
+        attribution: 'Map data &amp;copy; &lt;a href="http://openstreetmap.org"&gt;OpenStreetMap&lt;/a&gt; contributors, ' +
+        '&lt;a href="http://creativecommons.org/licenses/by-sa/2.0/"&gt;CC-BY-SA&lt;/a&gt;, ' +
+        'Imagery © &lt;a href="http://mapbox.com"&gt;Mapbox&lt;/a&gt;',
+        id: 'mapbox.streets'
+      }).addTo(map);
+      
+      
+      this.nodes = [];
+
+      this.src.data.output.forEach((b) =&gt; {
+        
+        var x = map.latLngToLayerPoint([b[this.props.lat], b[this.props.lng]]).x;
+        var y = map.latLngToLayerPoint([b[this.props.lat], b[this.props.lng]]).y;
+        
+        if (!x || !y)
+          return;
+        
+        var fontSize = b.score * 100 &gt; 15? 15: b.score * 100 + 8;
+        var velocity = Math.random() * 2 + 1;
+        var angle = Math.random() * 360;
+        this.nodes.push({
+          x: x + (Math.random()  - 0.5) * 30,
+          y: y + (Math.random()  - 0.5)  * 30, 
+          sx: x, 
+          sy: y,
+          label: b.term,
+          vx: 0,
+          vy: 0, 
+          size: fontSize,
+          width: fontSize,
+          height: fontSize,
+          fill: "white"
+
+        });
+      });
+
+      nodes = this.nodes;
+      
+      // Destination dots
+      dots = svg 
+          .selectAll('.dot')
+          .data(this.nodes);
+         
+      dots.enter().append('circle')
+      		.attr("class", "dot")
+          .attr('cx', function (d) { return d.sx; })
+          .attr('cy', function (d) { return d.sy; })
+          .attr('r', 3);
+      
+      dots.attr('cx', function (d) { return d.sx; })
+          .attr('cy', function (d) { return d.sy; });
+      
+      dots.exit().remove();
+      
+      dots = svg.selectAll(".dot");
+      
+      
+      // Destination lines
+      lines = svg
+          .selectAll('.connector')
+          .data(this.nodes);
+          
+      lines.enter().append('line')
+      		.attr("class", "connector")
+          .attr('x1', function (d) { return d.sx; })
+          .attr('y1', function (d) { return d.sy; })
+          .attr('x2', function (d) { return d.x + d.width / 2; })
+          .attr('y2', function (d) { return d.y + d.height / 2; });
+
+      lines
+          .attr('x1', function (d) { return d.sx; })
+          .attr('y1', function (d) { return d.sy; })
+          .attr('x2', function (d) { return d.x + d.width / 2; })
+          .attr('y2', function (d) { return d.y + d.height / 2; });
+      
+      lines.exit().remove();
+      
+      lines = svg.selectAll("line");
+      
+      // Rectangles (mostly for debugging purposes to see bounding boxes)
+      rects = svg
+        .selectAll('.box')
+        .data(this.nodes);
+      
+      rects.enter().append('rect')
+      	.attr("class", "box")
+        .attr('x', function (d) { return d.x - d.width / 2; })
+        .attr('y', function (d) { return d.y - d.height / 2; })
+        .attr('width', function (d) { return d.width; })
+        .attr('height', function (d) { return d.height; })
+        .style('fill', function (d) { return d.fill; });
+      
+      rects.attr('x', function (d) { return d.x - d.width / 2; })
+        .attr('y', function (d) { return d.y - d.height / 2; })
+        .attr('width', function (d) { return d.width; })
+        .attr('height', function (d) { return d.height; })
+        .style('fill', function (d) { return d.fill; });
+      
+      rects.exit().remove();
+      
+      rects = svg.selectAll("rect");
+
+      // Textual labels
+      labels = svg
+        .selectAll('.label')
+        .data(this.nodes);
+      
+      labels.enter().append('text')
+      	.attr("class", "label")
+        .attr('x', function (d) { return d.x; })
+        .attr('y', function (d) { return d.y; })
+        .attr('dy', '1em')
+        .attr('font-size', function (d) { return d.size + 'px'; } )
+        .text(function (d) { return d.label; });
+      
+      labels.attr('x', function (d) { return d.x; })
+        .attr('y', function (d) { return d.y; })
+        .attr('font-size', function (d) { return d.size + 'px'; } );
+      
+      labels.exit().remove();
+      
+      labels = svg.selectAll("text");
+      
+      
+      labels.each(function (d) { 
+        d.width = this.getComputedTextLength() + 1; 
+       	d.size = this.getComputedTextLength() + 1;
+      });
+
+      var collisionForce = rectCollide()
+        .size(function (d) { return [d.width, d.height]; });
+
+      var boxForce = boundedBox()
+        .bounds([[0, 0], [width, height]])
+        .size(function (d) { return [d.width, d.height]; });
+
+      // Create the force-directed simulation
+      var force = d3.forceSimulation(this.nodes)
+        .velocityDecay(0.1)
+        .alphaTarget(1)
+//       	.on("tick", ticked)
+        .force('box', boxForce)
+      	.force('collision', collisionForce)
+        .force('focus', (alpha) =&gt; {
+          for (var i = 0, n = this.nodes.length, node, k = alpha * 0.01; i &lt; n; ++i) {
+            node = this.nodes[i];
+            node.vx += (node.sx - node.x - node.width / 2) * k;
+            node.vy += (node.sy - node.y - node.height / 2) * k;
+          }
+        })
+      	.stop();
+      
+      
+      for (var i = 0, n = Math.ceil(Math.log(force.alphaMin()) / Math.log(1 - force.alphaDecay())); 
+           i &lt; 2*n; ++i) {
+        force.tick();
+      }
+	
+				// Simulating the tick and showing the end result!
+      ticked();
+    };
+    
+    this.draw();
+    
+	},
+	destroy: function() {
+
+	},
+	update: function(source) {
+    
+    if(!this.src.data || !this.src.data.output || !this.props.lat || !this.props.lng || !this.props.name) return;
+    
+    this.draw();
+	
+	},
+};</pre></div><div class="paragraph data-paragraph collapsed" name="Word Map data" data-id="emrPqxeJ"><pre data-type="content" type="application/json" id="wordMap-data" class="visdata">{
+  "config": {
+    "src": {  
+    },
+    "view": "$view-id"
+  },
+  "data": {
+    
+  }
+}</pre></div><div class="paragraph body-paragraph" name="Word Map view" data-id="SGSUwX48"><div data-type="content" type="text/html" codemirror="true" contenteditable="true" id="wordMap-view" class="visview"></div></div><div class="paragraph style-paragraph collapsed" data-id="9BKLRK49" name="Word Map style"><style data-type="content" type="text/css" codemirror="true" class="skip">.wordMapChart .box {
+  fill-opacity: 0.8;
+  fill: none !important;
+}
+
+.wordMapChart .label {
+  font-family: Avenir;
+  fill: #2c7fb8;
+}
+
+.wordMapChart .dot {
+  fill: #3182bd;
+  fill-opacity: 0.5;
+}
+
+.wordMapChart .connector {
+  stroke: none;
+  stroke-dasharray: 5, 5;
+}
+
+.leaflet-map-container {
+  width: 100%;
+  height: 100%;
+  min-width: 300px;
+  min-height: 500px;
+}</style></div></div>
