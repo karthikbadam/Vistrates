@@ -1,0 +1,337 @@
+<div class="section section-visible" data-id="zt2UBtjz" name="Typewriter" data-type="package" transient-focussed="true"><div class="paragraph body-paragraph locked collapsed" name="Documentation" data-id="95BidyZ2"><div data-type="content" type="text/html" codemirror="true" contenteditable="false" class="section-documentation"><h2>Description</h2><div>Allows to enter text into a CodeMirror editor in Codestrates by pressing a shortcut. The text will be written into the currently focussed paragraph at the current cursor position.</div><div>Mappings of keys, stepsizes (delay between char inserts in ms) and text to be entered can be set in the <code>#typewriter-mappings</code> paragraph.</div></div></div><div class="paragraph data-paragraph locked collapsed" name="Properties" data-id="jcMcw23F"><pre data-type="content" type="application/json" class="section-properties" contenteditable="false">{
+  "version": "1.0.3",
+  "icon": "format_textdirection_l_to_r",
+  "description": "Small utility to enter text into CodeMirror editors with a shortcut.",
+  "tags": [
+    "utility"
+  ],
+  "assets": [],
+  "dependencies": [],
+  "changelog": {
+    "1.0": "Initial version.",
+    "1.0.1": "Added Vistrate typewriter mappings.",
+    "1.0.2": "Typewriter mappings for WordMap component.",
+    "1.0.3": "Fixed Typewriter mappings for WordMap component."
+  },
+  "github": {
+    "url": "https://github.com/karthikbadam/Vistrates",
+    "folder": "Packages/zt2UBtjz-Typewriter"
+  }
+  
+}</pre></div><div class="paragraph code-paragraph collapsed" data-id="SZg6P7JJ" draggable="false" style="" name="Typewriter Mappings Vistrate"><pre data-type="content" type="text/javascript" id="typewriter-mappings">// mod+1: HTML
+// mod+2: CSS
+// mod+3: Code
+// mod+4: Package Properties
+// mod+5: Plot
+
+exports.mappings = [
+  {
+		keys: "mod+1",
+		step: "50",
+		lines: false,
+		text: `vc = {
+	data: 'wordOnMap-data',
+	src: ['data'],
+	props: ["lat", "lng", "name"],
+  libs: ["leaflet.zip/leaflet.js", "https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js", 'https://d3js.org/d3.v4.min.js'],`
+	},
+	{
+		keys: "mod+2",
+		step: "50",
+		lines: false,
+		text: `importStyle(["leaflet.zip/leaflet.css",
+                 "https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css", "https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css"]);
+    
+    if(!this.src.data || !this.src.data.output || !this.props.lat || !this.props.lng || !this.props.name) return;
+    
+    let that = this;
+  	let mapContainer = document.createElement("div");
+		mapContainer.classList.add("leaflet-map-container");
+    this.view.content = mapContainer;
+		L.Icon.Default.imagePath = "leaflet.zip/images/";
+		let map = L.map(mapContainer, { zoomControl:false, scrollWheelZoom: false });
+    map.setView([0, 0], 1);
+     
+    var svg = d3.select(map.getPanes().overlayPane).append("svg").attr("class", "wordMapChart"),
+			g = svg.append("g").attr("class", "leaflet-zoom-hide");
+    
+    // Create the SVG
+    var width = d3.select(".leaflet-map-container").node().offsetWidth, height = d3.select(".leaflet-map-container").node().offsetHeight;
+  
+    var nodes, labels, lines, rects, dots;
+   
+    function ticked() {
+      labels
+        .attr('x', function (d) { return d.x; })
+        .attr('y', function (d) { return d.y; });
+
+      rects
+        .attr('x', function (d) { return d.x; })
+        .attr('y', function (d) { return d.y; })
+        .attr('width', function (d) { return d.width; });
+
+      lines
+        .attr('x1', function (d) { return d.sx; })
+        .attr('y1', function (d) { return d.sy; })
+        .attr('x2', function (d) { return d.x + d.width / 2; })
+        .attr('y2', function (d) { return d.y + d.height / 2; });
+    }
+
+    
+    this.draw = () =&gt; {
+      
+      
+      let svg = d3.select(this.view.element.querySelector("svg"))
+      .attr("width", width).attr("height", height);
+      
+      
+      this.right = d3.max(this.src.data.output, (d) =&gt; {
+        	if (!isNaN(d[this.props.lat])) {
+              return d[this.props.lat];
+          }
+      });
+      this.left = d3.min(this.src.data.output, (d) =&gt; {
+        	if (!isNaN(d[this.props.lat])) {
+              return d[this.props.lat];
+          }
+      });
+      this.top = d3.min(this.src.data.output, (d) =&gt; {
+        	if (!isNaN(d[this.props.lng])) {
+              return d[this.props.lng];
+          }
+      });
+      this.bottom = d3.max(this.src.data.output, (d) =&gt; {
+        	if (!isNaN(d[this.props.lng])) {
+              return d[this.props.lng];
+          }
+      });
+     
+
+      map.fitBounds([[this.left, this.top], [this.right, this.bottom]]);
+
+      L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+        maxZoom: 20,
+        minZoom: 2,
+        attribution: 'Map data &amp;copy; &lt;a href="http://openstreetmap.org"&gt;OpenStreetMap&lt;/a&gt; contributors, ' +
+        '&lt;a href="http://creativecommons.org/licenses/by-sa/2.0/"&gt;CC-BY-SA&lt;/a&gt;, ' +
+        'Imagery © &lt;a href="http://mapbox.com"&gt;Mapbox&lt;/a&gt;',
+        id: 'mapbox.streets'
+      }).addTo(map);
+      
+      
+      this.nodes = [];
+
+      this.src.data.output.forEach((b) =&gt; {
+        
+        var x = map.latLngToLayerPoint([b[this.props.lat], b[this.props.lng]]).x;
+        var y = map.latLngToLayerPoint([b[this.props.lat], b[this.props.lng]]).y;
+        
+        if (!x || !y)
+          return;
+        
+        var fontSize = b.score * 100 &gt; 15? 15: b.score * 100 + 8;
+        var velocity = Math.random() * 2 + 1;
+        var angle = Math.random() * 360;
+        this.nodes.push({
+          x: x + (Math.random()  - 0.5) * 30,
+          y: y + (Math.random()  - 0.5)  * 30, 
+          sx: x, 
+          sy: y,
+          label: b.term,
+          vx: 0,
+          vy: 0, 
+          size: fontSize,
+          width: fontSize,
+          height: fontSize,
+          fill: "white"
+
+        });
+      });
+
+      nodes = this.nodes;
+      
+      // Destination dots
+      dots = svg 
+          .selectAll('.dot')
+          .data(this.nodes);
+         
+      dots.enter().append('circle')
+      		.attr("class", "dot")
+          .attr('cx', function (d) { return d.sx; })
+          .attr('cy', function (d) { return d.sy; })
+          .attr('r', 3);
+      
+      dots.attr('cx', function (d) { return d.sx; })
+          .attr('cy', function (d) { return d.sy; });
+      
+      dots.exit().remove();
+      
+      dots = svg.selectAll(".dot");
+      
+      
+      // Destination lines
+      lines = svg
+          .selectAll('.connector')
+          .data(this.nodes);
+          
+      lines.enter().append('line')
+      		.attr("class", "connector")
+          .attr('x1', function (d) { return d.sx; })
+          .attr('y1', function (d) { return d.sy; })
+          .attr('x2', function (d) { return d.x + d.width / 2; })
+          .attr('y2', function (d) { return d.y + d.height / 2; });
+
+      lines
+          .attr('x1', function (d) { return d.sx; })
+          .attr('y1', function (d) { return d.sy; })
+          .attr('x2', function (d) { return d.x + d.width / 2; })
+          .attr('y2', function (d) { return d.y + d.height / 2; });
+      
+      lines.exit().remove();
+      
+      lines = svg.selectAll("line");
+      
+      // Rectangles (mostly for debugging purposes to see bounding boxes)
+      rects = svg
+        .selectAll('.box')
+        .data(this.nodes);
+      
+      rects.enter().append('rect')
+      	.attr("class", "box")
+        .attr('x', function (d) { return d.x - d.width / 2; })
+        .attr('y', function (d) { return d.y - d.height / 2; })
+        .attr('width', function (d) { return d.width; })
+        .attr('height', function (d) { return d.height; })
+        .style('fill', function (d) { return d.fill; });
+      
+      rects.attr('x', function (d) { return d.x - d.width / 2; })
+        .attr('y', function (d) { return d.y - d.height / 2; })
+        .attr('width', function (d) { return d.width; })
+        .attr('height', function (d) { return d.height; })
+        .style('fill', function (d) { return d.fill; });
+      
+      rects.exit().remove();
+      
+      rects = svg.selectAll("rect");
+
+      // Textual labels
+      labels = svg
+        .selectAll('.label')
+        .data(this.nodes);
+      
+      labels.enter().append('text')
+      	.attr("class", "label")
+        .attr('x', function (d) { return d.x; })
+        .attr('y', function (d) { return d.y; })
+        .attr('dy', '1em')
+        .attr('font-size', function (d) { return d.size + 'px'; } )
+        .text(function (d) { return d.label; });
+      
+      labels.attr('x', function (d) { return d.x; })
+        .attr('y', function (d) { return d.y; })
+        .attr('font-size', function (d) { return d.size + 'px'; } );
+      
+      labels.exit().remove();
+      
+      labels = svg.selectAll("text");
+      
+      
+      labels.each(function (d) { 
+        d.width = this.getComputedTextLength() + 1; 
+       	d.size = this.getComputedTextLength() + 1;
+      });
+
+      var collisionForce = rectCollide()
+        .size(function (d) { return [d.width, d.height * 3]; });
+
+      var boxForce = boundedBox()
+        .bounds([[0, 0], [width, height]])
+        .size(function (d) { return [d.width, d.height]; });
+
+      // Create the force-directed simulation
+      var force = d3.forceSimulation(this.nodes)
+        .velocityDecay(0.1)
+        .alphaTarget(1)
+        .force('box', boxForce)
+      	.force('collision', collisionForce)
+        .force('focus', (alpha) =&gt; {
+          for (var i = 0, n = this.nodes.length, node, k = alpha * 0.01; i &lt; n; ++i) {
+            node = this.nodes[i];
+            node.vx += (node.sx - node.x - node.width / 2) * k;
+            node.vy += (node.sy - node.y - node.height / 2) * k;
+          }
+        })
+      	.stop();
+      
+      
+      for (var i = 0, n = Math.ceil(Math.log(force.alphaMin()) / Math.log(1 - force.alphaDecay())); 
+           i &lt; 2*n; ++i) {
+        force.tick();
+      }
+	
+				// Simulating the tick and showing the end result!
+      ticked();
+    };
+    
+    this.draw();`
+	}
+];</pre></div><div class="paragraph code-paragraph collapsed" data-id="W3nmLbFJ" name="Typewriter" last-execution-state="success" run-on-load="true" style=""><pre data-type="content" type="text/javascript">const TypewriterMappings = require("#typewriter-mappings");
+
+/******************************************************************************/
+
+importLib([
+  "mousetrap.min.js",
+  "mousetrap-global-bind.min.js"
+]).then(() =&gt; {
+
+  const writeText = (text, step = 50, lines = false) =&gt; {
+    if (!Codestrate.focussedParagraph) return;
+
+    const content = Codestrate.focussedParagraph.querySelector('[data-type="content"]');
+    if (content.__editor) {
+
+      const editor = content.__editor.editor;
+      const doc = editor.getDoc();
+
+      let position = 0;
+
+      if (!lines) {
+        const interval = setInterval(() =&gt; write(), step);
+
+        const write = () =&gt; {
+          const cursor = doc.getCursor();
+          doc.replaceRange(text[position++], cursor);
+          if (position &gt;= text.length) clearInterval(interval);
+        };
+      } else {
+        const lines = text.split("\n");
+        const interval = setInterval(() =&gt; write(), step);
+
+        const write = () =&gt; {
+          const cursor = doc.getCursor();
+          doc.replaceRange(lines[position++] + "\n", cursor);
+          if (position &gt;= lines.length) clearInterval(interval);
+        };
+      }
+    }
+    else {
+      let steps = text.length;
+      const interval = setInterval(() =&gt; {
+        --steps;
+        
+//         active
+        
+        if (steps &lt;= 0) {
+          clearInterval(interval);
+        }
+      }, 100);
+    }
+  };
+
+  TypewriterMappings.mappings.forEach((mapping) =&gt; {
+    Mousetrap.bindGlobal(mapping.keys, () =&gt; {
+      writeText(mapping.text, mapping.step, mapping.lines);
+      return false;
+    });
+  });
+});</pre></div></div>
