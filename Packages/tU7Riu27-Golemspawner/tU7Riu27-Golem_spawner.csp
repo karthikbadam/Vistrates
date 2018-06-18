@@ -1,0 +1,134 @@
+<div class="section section-visible" data-id="tU7Riu27" name="Golem spawner" data-type="package" transient-focussed="true"><div class="paragraph body-paragraph" name="Documentation" data-id="XNsqs6tG"><div data-type="content" type="text/html" codemirror="true" contenteditable="true" class="section-documentation"><h2>Golem spawner</h2><div>Lets you spawn and kill a <a href="https://github.com/Webstrates/golem-herder">golem</a>.</div></div></div><div class="paragraph data-paragraph collapsed locked" name="Properties" data-id="SUxhmmLa" style=""><pre data-type="content" type="application/json" class="section-properties" contenteditable="false">{
+  "version": "0.1.3",
+  "icon": "android",
+  "description": "Lets you spawn and kill a golem.",
+  "tags": [
+    "golem"
+  ],
+  "changelog": {
+    "0.1": "Initial version.",
+    "0.1.1": "Golem spawner now injects script to hide the whole page for the golem",
+    "0.1.2": "Now synchronises showing if golem is running or not",
+    "0.1.3": "Changed golem symbol to android icon to match the overall style of the codestrate."
+  },
+  "github": {
+    "url": "https://github.com/karthikbadam/Vistrates",
+    "folder": "Packages/tU7Riu27-Golemspawner"
+  }
+}</pre></div><div class="paragraph code-paragraph collapsed" data-id="sHbc75By" draggable="false" style="" name="Inject hide all script" run-on-load="true" last-execution-state="success"><pre data-type="content" type="text/javascript">if (document.head.querySelector("#golem-script")) return;
+let script = `if (/headless/i.exec(navigator.userAgent)) {
+	document.documentElement.setAttribute("transient-hideall", true);
+}`;
+let style = `html[transient-hideall="true"] {
+  display: none;
+}`;
+let scriptElem = document.createElement("script");
+scriptElem.id = "golem-script";
+scriptElem.innerHTML = script;
+let styleElem = document.createElement("style");
+styleElem.id = "golem-style";
+styleElem.innerHTML = style;
+document.head.prepend(scriptElem, styleElem);</pre></div><div class="paragraph style-paragraph collapsed" data-id="2NziSPtj" name="Hide all for golem"><style data-type="content" type="text/css" codemirror="true">html[transient-hideall="true"] {
+  display: none;
+}</style></div><div class="paragraph code-paragraph collapsed" data-id="8bmAJ9K3" name="Golem herder"><pre data-type="content" type="text/javascript" id="golem-herder">exports.spawn = () =&gt; {
+  return new Promise((resolve, reject) =&gt; {
+    let config = require("#golem-config");
+    fetch(config.server+'/golem/v1/spawn/'+webstrate.webstrateId).then((response) =&gt; {
+			if (response.status === 200) {
+        resolve();
+      } else {
+        reject("Golem already spawned");
+      }
+    }).catch((error) =&gt; {
+      reject(error);
+    });
+  });
+};
+
+exports.kill = () =&gt; {
+  return new Promise((resolve, reject) =&gt; {
+    let config = require("#golem-config");
+    fetch(config.server+'/golem/v1/kill/'+webstrate.webstrateId).then((response) =&gt; {
+			if (response.status === 200) {
+        resolve();
+      } else {
+        reject("Golem doesn't exist");
+      }
+    }).catch((error) =&gt; {
+      reject(error);
+    });
+  });
+};</pre></div><div class="paragraph code-paragraph collapsed" data-id="zKbAz6n5" last-execution-state="success" name="Golem control" run-on-load="true" style=""><pre data-type="content" type="text/javascript">let herder = require("#golem-herder");
+let config = require("#golem-config");
+
+let golemIcon = document.createElement("div");
+golemIcon.classList.add("golem-icon");
+golemIcon.setAttribute("title", "Toggle golem");
+golemIcon.innerHTML = `&lt;i class="material-icons"&gt;android&lt;/i&gt;`;
+document.querySelector("#global-toolbar .toolbar-row").appendChild(golemIcon);
+
+exports.spawn = () =&gt; {
+  herder.spawn().then((res) =&gt; {
+		golemIcon.classList.add("running");
+    config.running = true;
+    document.querySelector("#golem-config").firstChild.textContent = JSON.stringify(config, null, 2);
+  }).catch((error) =&gt; {
+		golemIcon.classList.add("running");
+  });  
+};
+
+exports.kill = () =&gt; {
+  herder.kill().then((res) =&gt; {
+		golemIcon.classList.remove("running");
+    delete config.running;
+    document.querySelector("#golem-config").firstChild.textContent = JSON.stringify(config, null, 2);
+    webstrate.signal("golemkilled");
+  }).catch((error) =&gt; {
+    console.warn(error);
+    alert("Couldn't kill golem!");
+  });  
+};
+
+golemIcon.addEventListener("click", (e) =&gt; {
+  if (config.running) {
+    exports.kill();
+  } else {
+    exports.spawn();
+  }
+});
+
+if (config.running) {
+	exports.spawn();
+}
+
+webstrate.on("signal", (msg, clientId) =&gt; {
+  if (msg === "iamgolem") {
+	  golemIcon.classList.add("running");  
+  } else if (msg === "golemkilled") {
+    golemIcon.classList.remove("running");
+  }
+});
+</pre></div><div class="paragraph body-paragraph collapsed" data-id="4b32FYfb" name="Assets"><div data-type="content" type="text/html" codemirror="true" contenteditable="true" class="writing"><img src="golem.jpg"></div></div><div class="paragraph code-paragraph collapsed" data-id="bTaNwxSm" run-on-load="true" name="Golem broadcast" last-execution-state="success"><pre data-type="content" type="text/javascript">if (!/headless/i.exec(navigator.userAgent)) return;
+webstrate.signal("iamgolem");
+webstrate.on("clientJoin", (clientId) =&gt; {
+	setTimeout(() =&gt; webstrate.signal("iamgolem", clientId), 5000);  
+});</pre></div><div class="paragraph style-paragraph collapsed" data-id="5Wdg7izG" name="Golem icon style"><style data-type="content" type="text/css" codemirror="true">.golem-icon {
+  display: flex;
+  padding: 4px;
+  width: 48px;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.golem-icon.running {
+  color: var(--material-color-light-green);
+  /*   border: 3px solid var(--color-accent); */
+}</style></div><div class="paragraph data-paragraph collapsed" data-id="W8YhLAAp" name="Config"><pre data-type="content" type="application/json" id="golem-config">{
+  "server": "https://webstrates.umd.edu",
+  "running": true
+}</pre></div></div>
