@@ -1,0 +1,417 @@
+<div class="section section-visible hide-collapsed-paragraphs" data-type="package" name="Pie Chart" data-id="Bxqa7kwq" draggable="false" style="" transient-focussed="true"><div class="paragraph body-paragraph collapsed" name="Documentation" data-id="gxnJHiv7"><div data-type="content" type="text/html" codemirror="true" contenteditable="true" class="section-documentation"><h2>Pie Chart</h2><div>Your description...</div></div></div><div class="paragraph data-paragraph collapsed locked" name="Properties" data-id="AFtHMxj2"><pre data-type="content" type="application/json" class="section-properties" contenteditable="false">{
+	"version": "0.2.3",
+	"icon": "your_material_icon_string",
+	"description": "A pie chart visualization component that works with a categorical attribute",
+	"tags": [
+		"vistrate",
+		"chart",
+		"visualization"
+	],
+	"dependencies": [
+		{
+			"id": "kTKppb2i",
+			"name": "Vistrate",
+			"optional": false
+		},
+		{
+			"id": "2DQH3q7U",
+			"name": "Vistrate standard library",
+			"optional": false
+		}
+	],
+	"changelog":
+	{
+    "0.2.3": "Only use viewbox to specify svg dimensions.",
+    "0.2.2": "Default view for no data connected.",
+		"0.2.1": "Minor bug fix.",
+    "0.2": "The output is now a searchjs query and the selections are synchronized.",
+    "0.1.5": "Filtered data is placed in output",
+		"0.1.4": "Fixed CSS and backgrounds",
+		"0.1.3": "Fixed bug with innerRadius",
+		"0.1.2": "Fixed labels by identifying collision.",
+		"0.1.1": "Fixed dependecy.",
+		"0.1": "Initial version."
+	},
+  "github": {
+    "url": "https://github.com/karthikbadam/Vistrates",
+    "folder": "Visualization/Bxqa7kwq-PieChart"
+  }
+}</pre></div><div class="paragraph code-paragraph collapsed" name="Pie Chart" data-id="fWdcZxwP" last-execution-state="success"><pre data-type="content" type="text/javascript-viscontroller" class="viscontroller run-on-add" id="pieChart">vc = {
+	data: '$data-id',
+	libs: ['https://d3js.org/d3.v4.min.js', 'https://d3js.org/d3-scale-chromatic.v0.3.min.js'],
+	src: ["data"],
+	props: ["category", "value"],
+	init: function() {
+		
+		this.view.content = '&lt;svg class="pieChart" viewbox="0 0 720 540"&gt;&lt;/svg&gt;'; //Removed specific id
+		let that = this;
+		this.getQueryObject = require("#stdlib-query").getQueryObject;
+		
+		// Creating variables and scales 
+		let svg = d3.select(this.view.element.querySelector("svg")).append("g") //Removed specific id
+			.attr("class", "container");
+		
+		let margin = {
+				left: 100,
+				right: 100, 
+				top: 100, 
+				bottom: 100
+			};
+			let width = 500 - margin.left - margin.right;
+			let height =  600 - margin.top - margin.bottom;
+    
+    this.update_highlights = function(){
+      if(Object.keys(this.data).length === 0) return;
+      svg.selectAll(".arc").select("path").each(function (e) {
+        if (that.data[that.props.category].includes(e.data.key)) {
+          d3.select(this).classed("highlight", true);
+        }
+        else{
+          d3.select(this).classed("highlight", false);
+        }
+			});
+    };
+    
+    
+   	this.draw_default = () =&gt; {
+      let svg = d3.select(this.view.element.querySelector("svg"));
+				//.attr("width", width)
+				//.attr("height", height);
+      
+      svg.select(".container").remove();
+      
+			svg.append("g").attr("class", "container")
+        .append("text")
+      	.attr("x", 50)
+      	.attr("y", 50)
+        .attr("class", "noData").text("No is data connected");
+    };
+    
+
+		this.draw = () =&gt; {
+			let data = [];
+      that.src.data.output.forEach((d) =&gt; {
+        data.push({key: d[that.props.category], value: d[that.props.value]});
+      });
+      
+      let type = that.props.category;
+      
+			let color = d3.scaleOrdinal(d3.schemeCategory10);
+			
+			let radius = Math.min(width, height) / 2;
+			var innerRadius = 0;
+			var outerRadius = radius;
+		
+			let pie = d3.pie()
+					.sort(null)
+					.value(function(d) { return d.value; });
+
+			let path = d3.arc()
+					.outerRadius(outerRadius)
+					.innerRadius(innerRadius);
+
+			let label = d3.arc()
+					.outerRadius((innerRadius + outerRadius)/2)
+					.innerRadius((innerRadius + outerRadius)/2);
+			
+			let svg = d3.select(this.view.element.querySelector("svg")); // Removed specific id
+				//.attr("width", width + margin.left + margin.right)
+				//.attr("height", height + margin.top + margin.bottom);
+      
+      svg.select(".container").remove();
+      
+			svg = svg.append("g")
+        .attr("class", "container")
+				.attr("transform",
+          "translate(" + (width + margin.left + margin.right)/2 + "," + (height + margin.top + margin.bottom)/2 + ")");
+			
+			var pied_data = pie(data);
+			var arcs = svg.selectAll(".arc")
+				.data(pied_data);
+			
+			var arc = arcs.enter().append("g")
+				.attr("class", "arc");
+
+			arc.append("path")
+				.attr("d", path)
+				.attr("fill", function(d) { return color(d.data.key); })
+				.on("click", function (d) {
+					if (that.data &amp;&amp; that.data[type] &amp;&amp; that.data[type].length &gt;= 0) {
+						let t = that.data;
+						if (t[type].indexOf(d.data.key) &gt;= 0) {
+							t[type].splice(t[type].indexOf(d.data.key), 1);
+						} else {
+							t[type].push(d.data.key);
+						}
+						that.data = t;
+					} else {
+						let t = {};
+						t[type] = [d.data.key];
+						that.data = t;
+					}
+				});
+
+			arcs.select("path")
+				.attr("d", path)
+				.attr("fill", function(d) { return color(d.data.key); });
+			
+			arcs.exit().remove();
+			
+			// Now we'll draw our label lines, etc.
+			var pieLabels = svg.selectAll(".label").data(pied_data);
+			var enteringLabels = pieLabels.enter();
+			var labelGroups = enteringLabels.append("g").attr("class", "label");
+			
+			labelGroups.append("circle")
+				.attr("class", "label_circle")
+				.attr("cx", 0)
+				.attr("cy", 0)
+				.attr("r", 2)
+				.attr("transform", function (d, i) {
+					return "translate(" + path.centroid(d) + ")";
+				});
+
+			var textLines = labelGroups.append("line")
+				.attr("class", "label_line")
+				.attr("x1", function (d, i) {
+					return path.centroid(d)[0];
+				})
+				.attr("y1", function (d, i) {
+					return path.centroid(d)[1];
+				})
+				.attr("x2", function (d, i) {
+					var centroid = path.centroid(d);
+					var midAngle = Math.atan2(centroid[1], centroid[0]);
+					return Math.cos(midAngle) * (radius + 30);
+				})
+				.attr("y2", function (d, i) {
+					var centroid = path.centroid(d);
+					var midAngle = Math.atan2(centroid[1], centroid[0]);
+					return Math.sin(midAngle) * (radius + 30);
+				});
+
+			var textLabels = labelGroups.append("text")
+				.attr("class", "label_text")
+				.attr("x", function (d, i) {
+					var centroid = path.centroid(d);
+					var midAngle = Math.atan2(centroid[1], centroid[0]);
+					var x = Math.cos(midAngle) * (radius + 30);
+					var sign = (x &gt; 0) ? 1 : -1;
+					var labelX = x + (5 * sign);
+					return labelX;
+				})
+				.attr("y", function (d, i) {
+					var centroid = path.centroid(d);
+					var midAngle = Math.atan2(centroid[1], centroid[0]);
+					var y = Math.sin(midAngle) * (radius + 30);
+					return y;
+				})
+				.attr("text-anchor", function (d, i) {
+					var centroid = path.centroid(d);
+					var midAngle = Math.atan2(centroid[1], centroid[0]);
+					var x = Math.cos(midAngle) * (radius + 30);
+					return (x &gt; 0) ? "start" : "end";
+				})
+				.text(function (d) {
+					return d.data.key + ": " + d.value;
+				})
+				.on("click", function (d, i) {
+						if (that.data &amp;&amp; that.data[type] &amp;&amp; that.data[type].length &gt;= 0) {
+							let t = that.data;
+							if (t[type].indexOf(d.data.key) &gt;= 0) {
+								t[type].splice(t[type].indexOf(d.data.key), 1);
+							} else {
+								t[type].push(d.data.key);
+							}
+							that.data = t;
+						} else {
+							let t = {};
+							t[type] = [d.data.key];
+							that.data = t;
+						}
+					});
+			
+			pieLabels.select(".label_circle")
+				.attr("cx", 0)
+				.attr("cy", 0)
+				.attr("r", 2)
+				.attr("transform", function (d, i) {
+					return "translate(" + path.centroid(d) + ")";
+				});
+			
+			pieLabels.select(".label_line")
+				.attr("x1", function (d, i) {
+					return path.centroid(d)[0];
+				})
+				.attr("y1", function (d, i) {
+					return path.centroid(d)[1];
+				})
+				.attr("x2", function (d, i) {
+					var centroid = path.centroid(d);
+					var midAngle = Math.atan2(centroid[1], centroid[0]);
+					return Math.cos(midAngle) * (radius + 30);
+				})
+				.attr("y2", function (d, i) {
+					var centroid = path.centroid(d);
+					var midAngle = Math.atan2(centroid[1], centroid[0]);
+					return Math.sin(midAngle) * (radius + 30);
+				});
+
+			pieLabels.select(".label_text")
+				.attr("x", function (d, i) {
+					var centroid = path.centroid(d);
+					var midAngle = Math.atan2(centroid[1], centroid[0]);
+					var x = Math.cos(midAngle) * (radius + 30);
+					var sign = (x &gt; 0) ? 1 : -1;
+					var labelX = x + (5 * sign);
+					return labelX;
+				})
+				.attr("y", function (d, i) {
+					var centroid = path.centroid(d);
+					var midAngle = Math.atan2(centroid[1], centroid[0]);
+					var y = Math.sin(midAngle) * (radius + 30);
+					return y;
+				})
+				.attr("text-anchor", function (d, i) {
+					var centroid = path.centroid(d);
+					var midAngle = Math.atan2(centroid[1], centroid[0]);
+					var x = Math.cos(midAngle) * (radius + 30);
+					return (x &gt; 0) ? "start" : "end";
+				})
+				.text(function (d) {
+					return d.data.key + ": " + d.value;
+				});
+			
+			pieLabels.exit().remove();
+			
+			// Lazy fixing the labels by detecting collision
+			var alpha = 2;
+			var spacing = 12;
+			var again = false;
+				
+			function relax() {
+				again = false;
+				var textLabels = svg.selectAll(".label").select(".label_text");
+				textLabels.each(function (d, i) {
+					var a = this;
+					var da = d3.select(a);
+					var y1 = da.attr("y");
+						
+					textLabels.each(function (d, j) {
+						var b = this;
+						// a &amp; b are the same element and don't collide.
+						if (a == b) return;
+						var db = d3.select(b);
+						// a &amp; b are on opposite sides of the chart and
+						// don't collide
+						if (da.attr("text-anchor") != db.attr("text-anchor")) return;
+						// Now let's calculate the distance between
+						// these elements. 
+						var y2 = db.attr("y");
+						var deltaY = y1 - y2;
+						
+						// Our spacing is greater than our specified spacing,
+						// so they don't collide.
+						if (Math.abs(deltaY) &gt; spacing) return;
+
+						// If the labels collide, we'll push each 
+						// of the two labels up and down a little bit.
+						again = true;
+						var sign = deltaY &gt; 0 ? 1 : -1;
+						var adjust = sign * alpha;
+						da.attr("y", +y1 + adjust);
+						db.attr("y", +y2 - adjust);
+					});
+					
+				});
+				// Adjust our line leaders here
+				// so that they follow the labels. 
+				if(again) {
+					var labelElements = textLabels._groups[0];
+					var textLines = svg.selectAll(".label").select(".label_line");
+					textLines.attr("y2",function(d,i) {
+						var labelForLine = d3.select(labelElements[i]);
+						return labelForLine.attr("y");
+					});
+					relax();
+				}
+			}
+
+			relax();
+			
+      let output = {_join: "OR", terms: []};
+      Object.keys(this.data).forEach((k) =&gt; {
+        this.data[k].forEach((v) =&gt; {
+          let obj = {};
+        	obj[k]  = v;
+          output.terms.push(this.getQueryObject(obj));
+        }); 
+      });
+      if(output.terms.length === 0){
+        output = {};
+      }
+      this.output = output;
+      
+      this.update_highlights();
+		};    
+	},
+	destroy: function() {
+
+	},
+	update: function(source) {
+    if(source === "ownData"){
+      this.update_highlights();
+    }
+		else {
+      if (!this.src.data || !this.src.data.output || !this.props.category || !this.props.value) {
+        this.draw_default();
+      }
+			else{
+        this.draw();
+      }
+    }
+	},
+};</pre></div><div class="paragraph style-paragraph collapsed" data-id="a3mcEq7E" name="Pie chart style"><style data-type="content" type="text/css" codemirror="true">.pieChart {
+	background-color: white;	
+}
+
+.pieChart .arc text {
+  font: 10px sans-serif;
+  text-anchor: middle;
+	cursor: pointer;
+}
+
+.pieChart .arc path {
+  stroke: transparent;
+}
+
+.pieChart .label_text {
+	alignment-baseline: middle;
+	font-size: 14px;
+	fill: black;
+}
+.pieChart .label_line {
+	stroke-width: 2;
+	stroke: black;
+	pointer-events: none;
+}
+.pieChart .label_circle {
+	fill: black;
+	pointer-events: none;
+}
+
+.pieChart .highlight {
+	stroke: #222!important;
+	stroke-width: 1px;
+	fill-opacity: 0.5;
+}
+</style></div><div class="paragraph data-paragraph collapsed" name="Pie Chart data" data-id="BUr2tVuR"><pre data-type="content" type="application/json" id="pieChart-data" class="visdata">{
+  "config": {
+    "src": {
+      "data": ""
+    },
+    "view": "$view-id"
+  },
+  "data": {
+  }
+}</pre></div><div class="paragraph body-paragraph" name="Pie Chart view" data-id="kkyeKpYJ"><div data-type="content" type="text/html" codemirror="true" contenteditable="true" id="pieChart-view" class="visview"></div></div></div>
