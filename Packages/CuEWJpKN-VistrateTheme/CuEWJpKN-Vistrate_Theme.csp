@@ -1,0 +1,466 @@
+<div class="section section-visible" name="Vistrate Theme" data-id="CuEWJpKN" data-type="package" transient-focussed="true"><div class="paragraph body-paragraph locked collapsed" data-id="DgPQYFnP" draggable="false" style="" name="Documentation"><div data-type="content" type="text/html" codemirror="true" contenteditable="false" class="section-documentation"><h2>Description</h2><div>A theme created by the theme creator.</div></div></div><div class="paragraph data-paragraph collapsed locked" data-id="hJCeLniy" draggable="false" style="" name="Properties"><pre data-type="content" type="application/json" class="section-properties" contenteditable="false">{
+  "version": "1.0.3",
+  "icon": "palette",
+  "description": "A light theme for Vistrate.",
+  "tags": [
+    "themes"
+  ],
+  "assets": [],
+  "dependencies": [],
+  "changelog": {
+    "1.0": "Initial version.",
+    "1.0.1": "Fixed select element style.",
+    "1.0.2": "Adjusted theme to match new theme API.",
+    "1.0.3": "Removed redundant styles (defined in default theme anyway)."
+  },
+  "github": {
+    "url": "https://github.com/karthikbadam/Vistrates",
+    "folder": "Packages/CuEWJpKN-VistrateTheme"
+  }
+}</pre></div><div class="paragraph code-paragraph locked collapsed" data-id="b2PeRxbp" name="Add Global Menu Entry" style="" last-execution-state="success" run-on-load="true"><pre data-type="content" type="text/javascript" class="" contenteditable="false">const GlobalMenuUtils = require("#global-menu-utils");
+
+/******************************************************************************/
+
+Codestrate.addCommand("themes.toggleVistrateTheme", "Toggle Vistrate Theme", () =&gt; {
+	if (Codestrate.theme === "Vistrate") {
+    Codestrate.theme = undefined;
+	} else {
+    Codestrate.theme = "Vistrate";
+	}
+});
+const toggleThemeButton = GlobalMenuUtils.createButton("Toggle Vistrate Theme", null, event =&gt; {
+	Codestrate.executeCommand("themes.toggleVistrateTheme");
+});
+
+/******************************************************************************/
+
+const subMenuName = "Themes";
+
+GlobalMenuUtils.addMenuItemToSubMenu(toggleThemeButton, subMenuName);</pre></div><div class="paragraph code-paragraph locked collapsed" data-id="3djmASbZ" name="Update Theme" style=""><pre data-type="content" type="text/javascript" class="" contenteditable="false">try {
+  const ThemeCreatorCode = require("#theme-creator-code");
+  ThemeCreatorCode.updateTheme("CuEWJpKN", "Vistrate");
+} catch (e) {
+  alert(`You need to install the optional dependency "Theme Creator" (w2AXGDAm) to update themes!`, "Missing Theme Creator");
+  return;
+}</pre></div><div class="paragraph style-paragraph collapsed" data-id="ENNysVhf" name="Alegreya Font"><style data-type="content" type="text/css" codemirror="true">/* cyrillic-ext */
+@font-face {
+	font-family: 'Alegreya';
+	font-style: italic;
+	font-weight: 400;
+	src: local('Alegreya Italic'), local('Alegreya-Italic'), url(https://fonts.gstatic.com/s/alegreya/v10/2-0rAhdO4T5hMLVYWXPl6yEAvth_LlrfE80CYdSH47w.woff2) format('woff2');
+	unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+	font-family: 'Alegreya';
+	font-style: italic;
+	font-weight: 400;
+	src: local('Alegreya Italic'), local('Alegreya-Italic'), url(https://fonts.gstatic.com/s/alegreya/v10/G_Uzz0l2AD37fwazYIVqRCEAvth_LlrfE80CYdSH47w.woff2) format('woff2');
+	unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek-ext */
+@font-face {
+	font-family: 'Alegreya';
+	font-style: italic;
+	font-weight: 400;
+	src: local('Alegreya Italic'), local('Alegreya-Italic'), url(https://fonts.gstatic.com/s/alegreya/v10/KqrXb9ZAKqVtzt7EgGbdIiEAvth_LlrfE80CYdSH47w.woff2) format('woff2');
+	unicode-range: U+1F00-1FFF;
+}
+/* greek */
+@font-face {
+	font-family: 'Alegreya';
+	font-style: italic;
+	font-weight: 400;
+	src: local('Alegreya Italic'), local('Alegreya-Italic'), url(https://fonts.gstatic.com/s/alegreya/v10/V907Vsm1WDtzQVBmHEUaayEAvth_LlrfE80CYdSH47w.woff2) format('woff2');
+	unicode-range: U+0370-03FF;
+}
+/* vietnamese */
+@font-face {
+	font-family: 'Alegreya';
+	font-style: italic;
+	font-weight: 400;
+	src: local('Alegreya Italic'), local('Alegreya-Italic'), url(https://fonts.gstatic.com/s/alegreya/v10/5EszMMLpK7CAwF487xC-ciEAvth_LlrfE80CYdSH47w.woff2) format('woff2');
+	unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+	font-family: 'Alegreya';
+	font-style: italic;
+	font-weight: 400;
+	src: local('Alegreya Italic'), local('Alegreya-Italic'), url(https://fonts.gstatic.com/s/alegreya/v10/6_pOq2_yZBqNy9oVYzitaiEAvth_LlrfE80CYdSH47w.woff2) format('woff2');
+	unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+	font-family: 'Alegreya';
+	font-style: italic;
+	font-weight: 400;
+	src: local('Alegreya Italic'), local('Alegreya-Italic'), url(https://fonts.gstatic.com/s/alegreya/v10/Q-XbT1m22Fi9BEKb7y59O_k_vArhqVIZ0nv9q090hN8.woff2) format('woff2');
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2212, U+2215;
+}
+/* cyrillic-ext */
+@font-face {
+	font-family: 'Alegreya';
+	font-style: italic;
+	font-weight: 700;
+	src: local('Alegreya Bold Italic'), local('Alegreya-BoldItalic'), url(https://fonts.gstatic.com/s/alegreya/v10/IWi8e5bpnqhMRsZKTcTUWude9INZm0R8ZMJUtfOsxrw.woff2) format('woff2');
+	unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+	font-family: 'Alegreya';
+	font-style: italic;
+	font-weight: 700;
+	src: local('Alegreya Bold Italic'), local('Alegreya-BoldItalic'), url(https://fonts.gstatic.com/s/alegreya/v10/IWi8e5bpnqhMRsZKTcTUWrpHcMS0zZe4mIYvDKG2oeM.woff2) format('woff2');
+	unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek-ext */
+@font-face {
+	font-family: 'Alegreya';
+	font-style: italic;
+	font-weight: 700;
+	src: local('Alegreya Bold Italic'), local('Alegreya-BoldItalic'), url(https://fonts.gstatic.com/s/alegreya/v10/IWi8e5bpnqhMRsZKTcTUWhquHyap-BLkxbFhcQRhghg.woff2) format('woff2');
+	unicode-range: U+1F00-1FFF;
+}
+/* greek */
+@font-face {
+	font-family: 'Alegreya';
+	font-style: italic;
+	font-weight: 700;
+	src: local('Alegreya Bold Italic'), local('Alegreya-BoldItalic'), url(https://fonts.gstatic.com/s/alegreya/v10/IWi8e5bpnqhMRsZKTcTUWjyJJ3dJfU6-XWVNf-DPRbs.woff2) format('woff2');
+	unicode-range: U+0370-03FF;
+}
+/* vietnamese */
+@font-face {
+	font-family: 'Alegreya';
+	font-style: italic;
+	font-weight: 700;
+	src: local('Alegreya Bold Italic'), local('Alegreya-BoldItalic'), url(https://fonts.gstatic.com/s/alegreya/v10/IWi8e5bpnqhMRsZKTcTUWjh33M2A-6X0bdu871ruAGs.woff2) format('woff2');
+	unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+	font-family: 'Alegreya';
+	font-style: italic;
+	font-weight: 700;
+	src: local('Alegreya Bold Italic'), local('Alegreya-BoldItalic'), url(https://fonts.gstatic.com/s/alegreya/v10/IWi8e5bpnqhMRsZKTcTUWhHJTnCUrjaAm2S9z52xC3Y.woff2) format('woff2');
+	unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+	font-family: 'Alegreya';
+	font-style: italic;
+	font-weight: 700;
+	src: local('Alegreya Bold Italic'), local('Alegreya-BoldItalic'), url(https://fonts.gstatic.com/s/alegreya/v10/IWi8e5bpnqhMRsZKTcTUWoWiMMZ7xLd792ULpGE4W_Y.woff2) format('woff2');
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2212, U+2215;
+}
+/* cyrillic-ext */
+@font-face {
+	font-family: 'Alegreya';
+	font-style: normal;
+	font-weight: 400;
+	src: local('Alegreya Regular'), local('Alegreya-Regular'), url(https://fonts.gstatic.com/s/alegreya/v10/CyUchkLLwC_Sk3Ot8VbrmBTbgVql8nDJpwnrE27mub0.woff2) format('woff2');
+	unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+	font-family: 'Alegreya';
+	font-style: normal;
+	font-weight: 400;
+	src: local('Alegreya Regular'), local('Alegreya-Regular'), url(https://fonts.gstatic.com/s/alegreya/v10/ajjr5syd8npzA2oMO3e2tBTbgVql8nDJpwnrE27mub0.woff2) format('woff2');
+	unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek-ext */
+@font-face {
+	font-family: 'Alegreya';
+	font-style: normal;
+	font-weight: 400;
+	src: local('Alegreya Regular'), local('Alegreya-Regular'), url(https://fonts.gstatic.com/s/alegreya/v10/lC0rmMY7jeEwAi0q4NEiaxTbgVql8nDJpwnrE27mub0.woff2) format('woff2');
+	unicode-range: U+1F00-1FFF;
+}
+/* greek */
+@font-face {
+	font-family: 'Alegreya';
+	font-style: normal;
+	font-weight: 400;
+	src: local('Alegreya Regular'), local('Alegreya-Regular'), url(https://fonts.gstatic.com/s/alegreya/v10/hTEGF50xIZGXmUgSEbt1cBTbgVql8nDJpwnrE27mub0.woff2) format('woff2');
+	unicode-range: U+0370-03FF;
+}
+/* vietnamese */
+@font-face {
+	font-family: 'Alegreya';
+	font-style: normal;
+	font-weight: 400;
+	src: local('Alegreya Regular'), local('Alegreya-Regular'), url(https://fonts.gstatic.com/s/alegreya/v10/Agq2djrNRZK5qadVTHOtlRTbgVql8nDJpwnrE27mub0.woff2) format('woff2');
+	unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+	font-family: 'Alegreya';
+	font-style: normal;
+	font-weight: 400;
+	src: local('Alegreya Regular'), local('Alegreya-Regular'), url(https://fonts.gstatic.com/s/alegreya/v10/9u9YGRxvkN-Oe2bJiJD80RTbgVql8nDJpwnrE27mub0.woff2) format('woff2');
+	unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+	font-family: 'Alegreya';
+	font-style: normal;
+	font-weight: 400;
+	src: local('Alegreya Regular'), local('Alegreya-Regular'), url(https://fonts.gstatic.com/s/alegreya/v10/4vRXIs1BEbKX6mQ7lGu1I_esZW2xOQ-xsNqO47m55DA.woff2) format('woff2');
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2212, U+2215;
+}
+/* cyrillic-ext */
+@font-face {
+	font-family: 'Alegreya';
+	font-style: normal;
+	font-weight: 700;
+	src: local('Alegreya Bold'), local('Alegreya-Bold'), url(https://fonts.gstatic.com/s/alegreya/v10/F5BSMOSf_T8GT2wiqqpj3TTOQ_MqJVwkKsUn0wKzc2I.woff2) format('woff2');
+	unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+	font-family: 'Alegreya';
+	font-style: normal;
+	font-weight: 700;
+	src: local('Alegreya Bold'), local('Alegreya-Bold'), url(https://fonts.gstatic.com/s/alegreya/v10/F5BSMOSf_T8GT2wiqqpj3TUj_cnvWIuuBMVgbX098Mw.woff2) format('woff2');
+	unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek-ext */
+@font-face {
+	font-family: 'Alegreya';
+	font-style: normal;
+	font-weight: 700;
+	src: local('Alegreya Bold'), local('Alegreya-Bold'), url(https://fonts.gstatic.com/s/alegreya/v10/F5BSMOSf_T8GT2wiqqpj3UbcKLIaa1LC45dFaAfauRA.woff2) format('woff2');
+	unicode-range: U+1F00-1FFF;
+}
+/* greek */
+@font-face {
+	font-family: 'Alegreya';
+	font-style: normal;
+	font-weight: 700;
+	src: local('Alegreya Bold'), local('Alegreya-Bold'), url(https://fonts.gstatic.com/s/alegreya/v10/F5BSMOSf_T8GT2wiqqpj3Wo_sUJ8uO4YLWRInS22T3Y.woff2) format('woff2');
+	unicode-range: U+0370-03FF;
+}
+/* vietnamese */
+@font-face {
+	font-family: 'Alegreya';
+	font-style: normal;
+	font-weight: 700;
+	src: local('Alegreya Bold'), local('Alegreya-Bold'), url(https://fonts.gstatic.com/s/alegreya/v10/F5BSMOSf_T8GT2wiqqpj3b6up8jxqWt8HVA3mDhkV_0.woff2) format('woff2');
+	unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+	font-family: 'Alegreya';
+	font-style: normal;
+	font-weight: 700;
+	src: local('Alegreya Bold'), local('Alegreya-Bold'), url(https://fonts.gstatic.com/s/alegreya/v10/F5BSMOSf_T8GT2wiqqpj3SYE0-AqJ3nfInTTiDXDjU4.woff2) format('woff2');
+	unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+	font-family: 'Alegreya';
+	font-style: normal;
+	font-weight: 700;
+	src: local('Alegreya Bold'), local('Alegreya-Bold'), url(https://fonts.gstatic.com/s/alegreya/v10/F5BSMOSf_T8GT2wiqqpj3Y4P5ICox8Kq3LLUNMylGO4.woff2) format('woff2');
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2212, U+2215;
+}</style></div><div class="paragraph style-paragraph collapsed" data-id="t6PxGSN3" name="Theme Variables" style="" draggable="false" orig-data-id="Z2h2eCWM"><style data-type="content" type="text/css" codemirror="true" class="">html[transient-theme="Vistrate"]:root {
+  
+  /* Fonts */
+	--font-primary: "Roboto", "Avenir", sans-serif;
+	--font-secondary: "Alegreya", serif;
+	--font-monospace: "Roboto Mono", "Menlo", monospace;
+
+	/* Colors Neutral Grey */
+	--color-primary: var(--material-color-grey-300);
+	--color-primary-shade-1: var(--material-color-grey-100);
+	--color-primary-shade-2: var(--material-color-grey-50);
+	--color-primary-shade-3: var(--material-color-white);
+
+	--color-primary-text: var(--material-color-grey-900);
+	--color-secondary-text: var(--material-color-grey-800);
+	--color-tertiary-text: var(--material-color-grey-500);
+
+	--color-accent: var(--material-color-deep-orange);
+	--color-accent-text: var(--material-color-white);
+
+	/* Colors RGB */
+	--color-primary-rgb: var(--material-color-grey-300-rgb);
+	--color-primary-shade-1-rgb: var(--material-color-grey-100-rgb);
+	--color-primary-shade-2-rgb: var(--material-color-grey-50-rgb);
+	--color-primary-shade-3-rgb: var(--material-color-white-rgb);
+
+	--color-primary-text-rgb: var(--material-color-grey-900-rgb);
+	--color-secondary-text-rgb: var(--material-color-grey-800-rgb);
+	--color-tertiary-text-rgb: var(--material-color-grey-500-rgb);
+
+	--color-accent-rgb: var(--material-color-deep-orange-rgb);
+	--color-accent-text-rgb: var(--material-color-white-rgb);
+
+	/* Warm Gray */
+	--color-primary: #f1ede4;
+	--color-primary-shade-1: #f8f6f2;
+	--color-primary-shade-2: #fbfaf8;
+	--color-primary-shade-3: var(--material-color-white);
+
+	/*--color-primary-text: #1f1b14;
+	--color-secondary-text: #3d3729;
+	--color-tertiary-text: #a39c8f;*/
+
+	--color-accent: #8f743d;
+	--color-accent-text: #f7f4ed;
+
+	/* Warm Gray RGB */
+	--color-primary-rgb: 241, 237, 228;
+	--color-primary-shade-1-rgb: 248, 246, 242;
+	--color-primary-shade-2-rgb: 251, 250, 248;
+	--color-primary-shade-3-rgb: var(--material-color-white-rgb);
+
+	/*--color-primary-text-rgb: 31, 27, 2;
+	--color-secondary-text-rgb: 92, 82, 61;
+	--color-tertiary-text-rgb: 163, 156, 143;*/
+
+	--color-accent-rgb: 143, 116, 61;
+	--color-accent-text-rgb: 247, 244, 237;
+
+	/* Transitions */
+	--navigation-transition: 250ms cubic-bezier(0.4, 0.0, 0.2, 1);
+}</style></div><div class="paragraph style-paragraph collapsed" name="CodeMirror Monokai Theme" draggable="false" data-id="GCzXHXmb" orig-data-id="63U8sryX"><style data-type="content" type="text/css" codemirror="true" class="">/* Based on Sublime Text's Monokai theme */
+
+html[transient-theme="Vistrate"] .cm-s-monokai.CodeMirror {
+	background: var(--color-primary-shade-1);
+	color: var(--color-primary-text);
+}
+
+html[transient-theme="Vistrate"] .cm-s-monokai .CodeMirror-dialog {
+	background: var(--color-primary-shade-1);
+}
+
+html[transient-theme="Vistrate"] .cm-s-monokai.CodeMirror div {
+
+}
+
+html[transient-theme="Vistrate"] .cm-s-monokai div.CodeMirror-selected {
+	background: rgba(var(--color-accent-rgb), 0.1);
+}
+html[transient-theme="Vistrate"] .cm-s-monokai .CodeMirror-line::selection,
+html[transient-theme="Vistrate"] .cm-s-monokai .CodeMirror-line > span::selection,
+html[transient-theme="Vistrate"] .cm-s-monokai .CodeMirror-line > span > span::selection {
+	background: rgba(73, 72, 62, .99);
+
+}
+html[transient-theme="Vistrate"] .cm-s-monokai .CodeMirror-line::-moz-selection,
+html[transient-theme="Vistrate"] .cm-s-monokai .CodeMirror-line > span::-moz-selection,
+html[transient-theme="Vistrate"] .cm-s-monokai .CodeMirror-line > span > span::-moz-selection {
+	background: rgba(73, 72, 62, .99);
+
+}
+html[transient-theme="Vistrate"] .cm-s-monokai .CodeMirror-gutters {
+	background: none;
+	border-right: 0px;
+}
+
+html[transient-theme="Vistrate"] .cm-s-monokai .CodeMirror-guttermarker {
+	color: var(--color-primary-text);
+}
+
+html[transient-theme="Vistrate"] .cm-s-monokai .CodeMirror-guttermarker-subtle {
+	color: #d0d0d0;
+}
+
+html[transient-theme="Vistrate"] .cm-s-monokai .CodeMirror-linenumber {
+	color: var(--color-primary-text);
+}
+
+html[transient-theme="Vistrate"] .cm-s-monokai .CodeMirror-cursor {
+	border-left: 1px solid var(--color-primary-text);
+}
+
+html[transient-theme="Vistrate"] .cm-s-monokai span.cm-comment {
+	color: rgb(135, 135, 129);
+}
+
+html[transient-theme="Vistrate"] .cm-s-monokai span.cm-atom {
+	color: #0451a5;
+}
+
+html[transient-theme="Vistrate"] .cm-s-monokai span.cm-number {
+	color: blue;
+}
+
+
+html[transient-theme="Vistrate"] .cm-s-monokai span.cm-property {
+  color: var(--color-primary-text);
+}
+
+html[transient-theme="Vistrate"] .cm-s-monokai span.cm-attribute {
+	color: darkblue;
+}
+
+html[transient-theme="Vistrate"] .cm-s-monokai span.cm-keyword,
+html[transient-theme="Vistrate"] .cm-s-monokai span.cm-tag,
+html[transient-theme="Vistrate"] .cm-s-monokai span.cm-tag.cm-bracket {
+	color: darkred;
+  font-weight: bold;
+}
+
+html[transient-theme="Vistrate"] .cm-s-monokai span.cm-builtin {
+	color: #66d9ef;
+}
+
+html[transient-theme="Vistrate"] .cm-s-monokai span.cm-string,
+html[transient-theme="Vistrate"] .cm-s-monokai span.cm-string-2 {
+	color: green;
+}
+
+
+html[transient-theme="Vistrate"] .cm-s-monokai span.cm-variable {
+	color: #0451a5;
+}
+
+html[transient-theme="Vistrate"] .cm-s-monokai span.cm-variable-2 {
+  color: var(--color-primary-text);
+}
+
+html[transient-theme="Vistrate"] .cm-s-monokai span.cm-variable-3 {
+	color: #66d9ef;
+}
+
+html[transient-theme="Vistrate"] .cm-s-monokai span.cm-def {
+  color: var(--color-primary-text);
+}
+
+html[transient-theme="Vistrate"] .cm-s-monokai span.cm-bracket {
+	color: #f8f8f2;
+}
+
+html[transient-theme="Vistrate"] .cm-s-monokai span.cm-header {
+	color: #ae81ff;
+}
+
+html[transient-theme="Vistrate"] .cm-s-monokai span.cm-link {
+	color: #ae81ff;
+}
+
+html[transient-theme="Vistrate"] .cm-s-monokai span.cm-error {
+	background: rgb(234, 53, 134);
+	color: #f8f8f0;
+}
+
+html[transient-theme="Vistrate"] .cm-s-monokai .CodeMirror-activeline-background {
+	background: rgba(var(--color-accent-rgb), 0.05);
+}
+
+html[transient-theme="Vistrate"] .paragraph.locked .cm-s-monokai .CodeMirror-activeline-background {
+	display: none;
+}
+
+html[transient-theme="Vistrate"] .cm-s-monokai .CodeMirror-matchingbracket {
+	text-decoration: underline;
+	color: var(--color-primary-text) !important;
+}
+
+html[transient-theme="Vistrate"] .cm-s-monokai span.cm-matchhighlight {
+	background: #353;
+}</style></div></div>
