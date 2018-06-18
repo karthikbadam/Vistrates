@@ -1,0 +1,59 @@
+<div class="section section-visible" name="Group by and Average" data-type="package" data-id="Hf6WZtrx" style="" draggable="false" transient-focussed="true"><div class="paragraph body-paragraph" name="Documentation" data-id="Q8kFXtLq"><div data-type="content" type="text/html" codemirror="true" contenteditable="true" class="section-documentation"><h2>Group by and Average</h2><div>Simple group by and average component.</div></div></div><div class="paragraph data-paragraph collapsed locked" name="Properties" data-id="e3YwB3AR"><pre data-type="content" type="application/json" class="section-properties" contenteditable="false">{
+	"version": "0.2",
+	"icon": "your_material_icon_string",
+	"description": "Simple groupby and average component.",
+	"tags": [
+		"vistrate"
+	],
+	"dependencies": [
+		{
+			"id": "kTKppb2i",
+			"name": "Vistrate",
+			"optional": false
+		}
+	],
+	"changelog":
+	{
+    "0.2": "Minor bug fix.",
+		"0.1": "Initial version."
+	},
+  "github": {
+    "url": "https://github.com/karthikbadam/Vistrates",
+    "folder": "Processing/Hf6WZtrx-GroupbyAverage"
+  }
+}</pre></div><div class="paragraph code-paragraph collapsed" name="Groupby Average" data-id="U5THKF2T"><pre data-type="content" type="text/javascript-viscontroller" class="viscontroller" id="groupbyAverage">vc = {
+	data: '$data-id',
+	src: ['data'],
+	props: ['key', 'value'],
+	init: function() {
+		this.compute_average = function(){
+      let temp = {};
+      this.src.data.output.forEach((d) =&gt;{
+        let k = d[this.props.key];
+      	if(temp[k]){
+          temp[k].sum += d[this.props.value];
+          temp[k].count += 1;
+        }
+        else{
+          temp[k] = {key: k, sum: d[this.props.value], count: 1};
+        }
+      });
+		      
+    	let output = [];
+      Object.keys(temp).forEach((k) =&gt; {
+        temp[k].avg = temp[k].sum / temp[k].count;
+        output.push(temp[k]);
+      });
+      this.output = output;
+    };
+	},
+	update: function(source) {
+		if(!this.src.data || !this.src.data.output || !this.props.key || !this.props.value) return;
+    this.compute_average();
+	},
+};</pre></div><div class="paragraph data-paragraph collapsed" name="Groupby Average data" data-id="FkJcJDjT"><pre data-type="content" type="application/json" id="groupbyAverage-data" class="visdata">{
+  "config": {
+    "src": {}
+  },
+  "data": {}
+}</pre></div></div>
