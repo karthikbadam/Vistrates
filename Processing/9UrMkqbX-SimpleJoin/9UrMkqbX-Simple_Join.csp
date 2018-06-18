@@ -1,0 +1,69 @@
+<div class="section section-visible" name="Simple Join" data-type="package" data-id="9UrMkqbX" transient-focussed="true"><div class="paragraph body-paragraph" name="Documentation" data-id="kXi5xK26"><div data-type="content" type="text/html" codemirror="true" contenteditable="true" class="section-documentation"><h2>Simple Join<br></h2><div>Simple join component that computes the inner join of two data sources on a single attribute.</div></div></div><div class="paragraph data-paragraph locked collapsed" name="Properties" data-id="jsPabzTu"><pre data-type="content" type="application/json" class="section-properties" contenteditable="false">{
+	"version": "0.2.1",
+	"icon": "your_material_icon_string",
+	"description": "Simple inner join component.",
+	"tags": [
+		"vistrate"
+	],
+	"dependencies": [
+		{
+			"id": "kTKppb2i",
+			"name": "Vistrate",
+			"optional": false
+		}
+	],
+	"changelog":
+	{
+    "0.2.1": "Run on add.",
+		"0.2": "Minor bug fix.",
+    "0.1": "Initial version."
+	},
+  "github": {
+    "url": "https://github.com/karthikbadam/Vistrates",
+    "folder": "Processing/9UrMkqbX-SimpleJoin"
+  }
+}</pre></div><div class="paragraph code-paragraph collapsed" name="Simple Join" data-id="nqeeHMB5" last-execution-state="success"><pre data-type="content" type="text/javascript-viscontroller" class="viscontroller run-on-add" id="simpleJoin">vc = {
+	data: '$data-id',
+	src: ["data1", "data2"],
+	props: ["key1", "key2"],
+  libs: ["https://cdn.jsdelivr.net/npm/lodash@4.17.5/lodash.min.js"],
+	init: function() {
+    
+    this.join = function(){
+      let d1 = _.sortBy(this.src.data1.output, this.props.key1);
+      let d2 = _.sortBy(this.src.data2.output, this.props.key2);
+
+      let i1 = 0;
+      let i2 = 0;
+
+      let output = [];
+      let idx = 0;
+
+      while (i1 &lt; d1.length &amp;&amp; i2 &lt; d2.length) {
+        var obj1 = d1[i1];
+        var obj2 = d2[i2];
+        if (_.isEqual(obj1[this.props.key1], obj2[this.props.key2])) {
+          var new_obj = Object.assign(obj1, obj2); 
+          output.push(new_obj);
+
+        } 
+        if (_.lt(obj1[this.props.key1], obj2[this.props.key2])) {
+          i1++;
+        } else {
+          i2++;
+        }
+      }
+      this.output = output;
+    };
+	},
+	update: function(source) {
+		if(!this.src.data1 || !this.src.data1.output || !this.src.data2 || ! this.src.data2.output || !this.props.key1 || !this.props.key2) return;
+    this.join();
+	},
+};</pre></div><div class="paragraph data-paragraph collapsed" name="Simple Join data" data-id="aEqY3Qme"><pre data-type="content" type="application/json" id="simpleJoin-data" class="visdata">{
+  "config": {
+    "src": {},
+    "props": {}
+  },
+  "data": {}
+}</pre></div></div>
