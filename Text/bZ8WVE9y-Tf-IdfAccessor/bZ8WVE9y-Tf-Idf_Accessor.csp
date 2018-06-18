@@ -1,0 +1,66 @@
+<div class="section section-visible" name="Tf-Idf Accessor" data-type="package" data-id="bZ8WVE9y" draggable="false" style="" transient-focussed="true"><div class="paragraph body-paragraph locked" name="Documentation" data-id="BZxfvFf2"><div data-type="content" type="text/html" codemirror="true" contenteditable="false" class="section-documentation"><h2>Tf-Idf Accessor</h2><div>This component works with the Tf-Idf analyzer and provides the tf-idf for&nbsp;<span style="color: var(--color-secondary-text); font-family: var(--font-secondary); font-size: 1rem; background-color: var(--color-primary-shade-2);">selected&nbsp;</span><span style="color: var(--color-secondary-text); font-family: var(--font-secondary); font-size: 1rem; background-color: var(--color-primary-shade-2);">data. This provides the way for running the analyzer as a heavy computation.</span></div></div></div><div class="paragraph data-paragraph locked collapsed" name="Properties" data-id="SCyG8xKu"><pre data-type="content" type="application/json" class="section-properties" contenteditable="false">{
+	"version": "0.1.3",
+	"icon": "your_material_icon_string",
+	"description": "Component works with the Tf-Idf analyzer and provides the tf-idf scores",
+	"tags": [
+		"vistrate", "accessor", "tfidf", "frequency", "text analytics"
+	],
+	"changelog":
+	{
+    "0.1.4": "Folded the data para",
+		"0.1.3": "Changes to accessor logic",
+    "0.1.2": "Removed mappings from data paragraph.",
+    "0.1.1": "Outputs the data and words.",
+    "0.1": "Initial version of the accessor."
+	},
+  "github": {
+    "url": "https://github.com/karthikbadam/Vistrates",
+    "folder": "Text/bZ8WVE9y-Tf-IdfAccessor"
+  }
+}</pre></div><div class="paragraph code-paragraph collapsed" name="Tf-Idf Accessor" data-id="APWRmRLE" last-execution-state="success"><pre data-type="content" type="text/javascript-viscontroller" class="viscontroller run-on-add" id="tf-IdfAccessor">vc = {
+	data: '$data-id',
+	src: ["tfidf", "documents"],
+  props: ["name", "lat", "lng"],
+	init: function() {
+    this.returnData = () =&gt; {
+      let scores = this.src.tfidf.output;
+      let documents = this.src.documents.output;
+      
+      var words = [];
+      documents.forEach((d) =&gt; {
+        let name = d[this.props.name];
+        if (!scores[name]) return;
+        let terms = Object.keys(scores[name]);
+        terms.forEach((t) =&gt; {
+          let score = scores[name][t];
+          var word = {};
+          word.name = name;
+          word.term = t;
+          word[this.props.lat] = d[this.props.lat];
+          word[this.props.lng] = d[this.props.lng];
+          word.score = score;
+          words.push(word);
+        });
+      });
+      
+      console.log(words);
+      
+      this.output = words;
+    };
+	},
+	destroy: function() {
+
+	},
+	update: function(source) {
+    if (!this.src.tfidf || !this.src.tfidf.output) return;
+    if (!this.src.documents || !this.src.documents.output) return;
+    if (!this.props.name || !this.props.lat || !this.props.lng) return;
+    
+    this.returnData();
+	},
+};</pre></div><div class="paragraph data-paragraph collapsed" name="Tf-Idf Accessor data" data-id="uutvudx8"><pre data-type="content" type="application/json" id="tf-IdfAccessor-data" class="visdata">{
+  "config": {
+    "src": {}
+  },
+  "data": {}
+}</pre></div></div>
