@@ -1,0 +1,64 @@
+<div class="section section-visible" name="Filter join" data-type="package" data-id="iAitSNzp" transient-focussed="true"><div class="paragraph body-paragraph" name="Documentation" data-id="MjgjTphd"><div data-type="content" type="text/html" codemirror="true" contenteditable="true" class="section-documentation"><h2>Filter join</h2><div>Can join two searchjs based filters.</div></div></div><div class="paragraph data-paragraph locked collapsed" name="Properties" data-id="DTDHQcMe"><pre data-type="content" type="application/json" class="section-properties" contenteditable="false">{
+	"version": "0.1",
+	"icon": "your_material_icon_string",
+	"description": "Your short description.",
+	"tags": [
+		"vistrate"
+	],
+  "dependencies": [
+		{
+			"id": "kTKppb2i",
+			"name": "Vistrate",
+			"optional": false
+		}
+	],
+	"changelog":
+	{
+		"0.1": "Initial version."
+	},
+  "github": {
+    "url": "https://github.com/karthikbadam/Vistrates",
+    "folder": "Processing/iAitSNzp-FilterJoin"
+  }
+}</pre></div><div class="paragraph code-paragraph collapsed" name="Filter join" data-id="ALnCcPMZ" last-execution-state="success"><pre data-type="content" type="text/javascript-viscontroller" class="viscontroller" id="filterJoin">vc = {
+	data: '$data-id',
+	src: ["filter1", "filter2"],
+	props: [],
+	init: function() {
+    this.view.content = `&lt;form action=""&gt;
+  &lt;input type="radio" name="join" value="AND" checked&gt;AND&lt;br&gt;
+  &lt;input type="radio" name="join" value="OR"&gt;OR&lt;br&gt;
+&lt;/form&gt;`;
+  
+  	this.form = this.view.element.querySelector("form");
+    
+	  this.form.addEventListener("change", (e) =&gt; {
+			let join = this.form.join.value;
+      this.data = {join: join};
+	  });
+	},
+	destroy: function() {
+
+	},
+	update: function(source) {
+    if (!this.src.filter1 || !this.src.filter1.output) return;
+    if (!this.src.filter2 || !this.src.filter2.output) return;
+		let join;
+    if (this.data.join) {
+			join = this.data.join;
+    } else {
+      join = "AND";
+    }
+    if (this.form.join.value !== join) {
+      this.form.join.value = join;
+    }
+    
+    this.output = {_join: join, terms: [this.src.filter1.output, this.src.filter2.output]};
+	},
+};</pre></div><div class="paragraph data-paragraph collapsed" name="Filter join data" data-id="K2TyRp9J"><pre data-type="content" type="application/json" id="filterJoin-data" class="visdata">{
+  "config": {
+    "view": "$view-id"
+  },
+  "data": {
+  }
+}</pre></div><div class="paragraph body-paragraph locked" name="Filter join view" data-id="iiaqyQWZ"><div data-type="content" type="text/html" codemirror="true" contenteditable="false" id="filterJoin-view" class="visview"></div></div></div>
