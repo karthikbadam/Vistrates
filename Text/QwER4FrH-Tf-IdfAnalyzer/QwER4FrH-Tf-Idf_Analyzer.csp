@@ -1,0 +1,151 @@
+<div class="section section-visible" name="Tf-Idf Analyzer" data-id="QwER4FrH" data-type="package" transient-focussed="true"><div class="paragraph body-paragraph" name="Documentation" data-id="BpnkjABV"><div data-type="content" type="text/html" codemirror="true" contenteditable="true" class="section-documentation"><h2>Tf-Idf Analyzer</h2><div>Extract Tf-Idf scores for text within a structured dataset (e.g., Business reviews). This component should be run only once, since this can be intensive on large datasets.</div></div></div><div class="paragraph data-paragraph locked collapsed" name="Properties" data-id="upg5cQJA"><pre data-type="content" type="application/json" class="section-properties" contenteditable="false">{
+	"version": "0.4.3",
+	"icon": "your_material_icon_string",
+	"description": "Extracts Tf-Idf scores for text within a dataset.",
+	"tags": [
+    "vistrate",
+		"frequency", 
+    "text analytics",
+    "keywords"
+	],
+	"changelog":
+	{
+    "0.4.3": "properties",
+    "0.4.2": "Minor fixes to data flow",
+    "0.4.1": "Description",
+    "0.4": "Fixed tags",
+    "0.3": "Added to Vistrates store",
+    "0.2": "No view",
+		"0.1": "Initial version that runs once"
+	},
+  "github": {
+    "url": "https://github.com/karthikbadam/Vistrates",
+    "folder": "Text/QwER4FrH-Tf-IdfAnalyzer"
+  }
+}</pre></div><div class="paragraph code-paragraph collapsed" data-id="VFaDidSp" name="Tf-idf Analyzer tf-idf"><pre data-type="content" type="text/javascript" id="tf-idf" class="skip">// Normalize a word
+exports.normalize = function (word) {
+    return word.toLowerCase().replace(/[^\w]/g, "");
+};
+
+// Tokenize a doc
+exports.tokenize = function (doc) {
+    return doc.toLowerCase().trim().replace(/[,;.]/g,'').split(/[\s_():.!?,;]+/);
+};
+
+exports.reduce = function(previous, current, index, array) {
+    if(!(current in previous)) {
+        previous[current] = 1 / array.length;
+    } else {
+        previous[current] += 1 / array.length;
+    }
+    return previous;
+};
+
+// Text frequency
+exports.tf = function tf(words, stopWords) {
+    return words
+        // Normalize words
+        .map(exports.normalize)
+        // Filter out stop words and short words
+        .filter(function(word) {
+            return word.length &gt; 1 &amp;&amp; (!stopWords || !~stopWords.indexOf(word)) &amp;&amp; isNaN(word);
+        })
+        // Reduce
+        .reduce(exports.reduce, {});
+};
+
+// Inverse document frequency
+exports.idf = function idf(D, dted) {
+    return Math.log(D / (1 + dted)) / Math.log(10);
+};
+
+// Main entry point, load the corpus and return an object
+// which can calculate the tfidf for a certain doc
+exports.analyze = function analyze(corpus, _stopWords) {
+    var
+        // Total number of (unique) documents
+        D = 0,
+        // Number of documents containing the term
+        dted = {},
+        // Keep our calculated text frequencies
+        docs = {},
+        // Normalized stop words
+        stopWords;
+    
+    if(_stopWords) stopWords = _stopWords.map(exports.normalize);
+
+    function add(name, doc) {
+        // One more document
+        D++;
+        // Calculate and store the term frequency
+        docs[name] = exports.tf(exports.tokenize(doc), stopWords);
+        // Update number of documents with term
+        for(var term in docs[name]) {
+            if(!(term in dted)) dted[term] = 0;
+            dted[term]++;
+        }
+    }
+
+    for (var key in corpus) {
+    	var doc = corpus[key];
+      var h = key;
+      // Add the document if it's new to us
+      if(!(h in docs)) {
+        add(h, doc);
+      }
+    }
+
+  	var scores = {};
+  	for (var name in docs) {
+      for (var term in docs[name]) {
+        var score = docs[name][term] * exports.idf(D, dted[term]);
+        if (!scores[name]) {
+          scores[name] = {};
+        }
+        if (score &gt; 0.05) {
+          scores[name][term] = score;
+        }
+      }
+    }
+
+    // Return a function which calculates the tfidf for this document
+    return scores;
+};</pre></div><div class="paragraph code-paragraph collapsed" data-id="iKybhasa" name="Tf-Idf Analyzer Stop Words"><pre data-type="content" type="text/javascript" id="stop-words-tfidf" class="skip">exports.stopWords = function() {
+	return "i,me,my,myself,we,our,ours,ourselves,you,your,yours,yourself,yourselves,he,him,his,himself,she,her,hers,herself,it,its,itself,they,them,their,theirs,themselves,what,which,who,whom,this,that,these,those,am,is,are,was,were,be,been,being,have,has,had,having,do,does,did,doing,a,an,the,and,but,if,or,because,as,until,while,of,at,by,for,with,about,against,between,into,through,during,before,after,above,below,to,from,up,down,in,out,on,off,over,under,again,further,then,once,here,there,when,where,why,how,all,any,both,each,few,more,most,other,some,such,no,nor,not,only,own,same,so,than,too,very,s,t,can,will,just,don,should,now, a,able,about,above,abst,accordance,according,accordingly,across,act,actually,added,adj,affected,affecting,affects,after,afterwards,again,against,ah,all,almost,alone,along,already,also,although,always,am,among,amongst,an,and,announce,another,any,anybody,anyhow,anymore,anyone,anything,anyway,anyways,anywhere,apparently,approximately,are,aren,arent,arise,around,as,aside,ask,asking,at,auth,available,away,awfully,b,back,be,became,because,become,becomes,becoming,been,before,beforehand,begin,beginning,beginnings,begins,behind,being,believe,below,beside,besides,between,beyond,biol,both,brief,briefly,but,by,c,ca,came,can,cannot,can't,cause,causes,certain,certainly,co,com,come,comes,contain,containing,contains,could,couldnt,d,date,did,didn't,different,do,does,doesn't,doing,done,don't,down,downwards,due,during,e,each,ed,edu,effect,eg,eight,eighty,either,else,elsewhere,end,ending,enough,especially,et,et-al,etc,even,ever,every,everybody,everyone,everything,everywhere,ex,except,f,far,few,ff,fifth,first,five,fix,followed,following,follows,for,former,formerly,forth,found,four,from,further,furthermore,g,gave,get,gets,getting,give,given,gives,giving,go,goes,gone,got,gotten,he,had,happens,hardly,has,hasn't,have,haven't,having,he,hed,hence,her,here,hereafter,hereby,herein,heres,hereupon,hers,herself,hes,hi,hid,him,himself,his,hither,home,how,howbeit,however,hundred,i,id,ie,if,i'll,im,immediate,immediately,importance,important,in,inc,indeed,index,information,instead,into,invention,inward,is,isn't,it,itd,it'll,its,itself,i've,j,just,k,keep,keeps,kept,kg,km,know,known,knows,l,largely,last,lately,later,latter,latterly,least,less,lest,let,lets,like,liked,likely,line,little,'ll,look,looking,looks,ltd,m,made,mainly,make,makes,many,may,maybe,me,mean,means,meantime,meanwhile,merely,mg,might,million,miss,ml,more,moreover,most,mostly,mr,mrs,much,mug,must,my,myself,n,na,name,namely,nay,nd,near,nearly,necessarily,necessary,need,needs,neither,never,nevertheless,new,next,nine,ninety,no,nobody,non,none,nonetheless,noone,nor,normally,nos,not,noted,nothing,now,nowhere,o,obtain,obtained,obviously,of,off,often,oh,ok,okay,old,omitted,on,once,one,ones,only,onto,or,ord,other,others,otherwise,ought,our,ours,ourselves,out,outside,over,overall,owing,own,p,page,pages,part,particular,particularly,past,per,perhaps,placed,please,plus,poorly,possible,possibly,potentially,pp,predominantly,present,previously,primarily,probably,promptly,proud,provides,put,q,que,quickly,quite,qv,r,ran,rather,rd,re,readily,really,recent,recently,ref,refs,regarding,regardless,regards,related,relatively,research,respectively,resulted,resulting,results,right,run,s,said,same,saw,say,saying,says,sec,section,see,seeing,seem,seemed,seeming,seems,seen,self,selves,sent,seven,several,shall,she,shed,she'll,shes,should,shouldn't,show,showed,shown,showns,shows,significant,significantly,similar,similarly,since,six,slightly,so,some,somebody,somehow,someone,somethan,something,sometime,sometimes,somewhat,somewhere,soon,sorry,specifically,specified,specify,specifying,still,stop,strongly,sub,substantially,successfully,such,sufficiently,suggest,sup,sure,t,take,taken,taking,tell,tends,th,than,thank,thanks,thanx,that,that'll,thats,that've,the,their,theirs,them,themselves,then,thence,there,thereafter,thereby,thered,therefore,therein,there'll,thereof,therere,theres,thereto,thereupon,there've,these,they,theyd,they'll,theyre,they've,think,this,those,thou,though,thoughh,thousand,throug,through,throughout,thru,thus,til,tip,to,together,too,took,toward,towards,tried,tries,truly,try,trying,ts,twice,two,u,un,under,unfortunately,unless,unlike,unlikely,until,unto,up,upon,ups,us,use,used,useful,usefully,usefulness,uses,using,usually,v,value,various,'ve,very,via,viz,vol,vols,vs,w,want,wants,was,wasn't,way,we,wed,welcome,we'll,went,were,weren't,we've,what,whatever,what'll,whats,when,whence,whenever,where,whereafter,whereas,whereby,wherein,wheres,whereupon,wherever,whether,which,while,whim,whither,who,whod,whoever,whole,who'll,whom,whomever,whos,whose,why,widely,willing,wish,with,within,without,won't,words,world,would,wouldn't,www,x,y,yes,yet,you,youd,you'll,your,youre,yours,yourself,yourselves,you've,z,zero".split(",");
+};</pre></div><div class="paragraph code-paragraph collapsed" name="Tf-Idf Analyzer" data-id="jxS3BgR9" last-execution-state="success"><pre data-type="content" type="text/javascript-viscontroller" class="viscontroller run-on-add" id="tf-IdfAnalyzer">vc = {
+	data: '$data-id',
+	src: ["data"],
+	props: ["text", "name"],
+	init: function() {
+	},
+	destroy: function() {
+	},
+	update: function(source) {
+		if (!this.src.data || !this.src.data.output) return;
+    if (!this.props.name || !this.props.text) return;
+
+		this.tfidf = require("#tf-idf").analyze;
+    let stopWords = require("#stop-words-tfidf").stopWords();
+    var docs = this.src.data.output.reduce((rv, row) =&gt; {
+      if (!rv[row[this.props.name]]) {
+        rv[row[this.props.name]] = "";
+      }
+      rv[row[this.props.name]] +=  row[this.props.text];
+      return rv;
+    }, {});
+
+    var scores = this.tfidf(docs, stopWords);
+    docs = {};
+
+    // Output is a scores object which maintains the top words for all businesses! 
+    // How to use: Output["name"]["term"] gives the score
+    // Therefore, no need to run on update!
+    this.output = scores;
+  },
+};</pre></div><div class="paragraph data-paragraph collapsed" name="Tf-Idf Analyzer data" data-id="MMTrhcyT"><pre data-type="content" type="application/json" id="tf-IdfAnalyzer-data" class="visdata">{
+  "config": {
+    "src": {
+    }
+  },
+  "data": {}
+}</pre></div></div>
