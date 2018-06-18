@@ -1,0 +1,425 @@
+<div class="section section-visible" data-id="VxDJJKw9" name="Canvas Objects" data-type="package"><div class="paragraph body-paragraph locked" name="Documentation" data-id="AqHBTqx8"><div data-type="content" type="text/html" codemirror="true" contenteditable="false" class="section-documentation"><h2>Description</h2><div>Allows adding objects to the canvas, which are then transforable (translate, rotate, scale).</div></div></div><div class="paragraph data-paragraph collapsed" name="Properties" data-id="d9ccqLUD"><pre data-type="content" type="application/json" class="section-properties" contenteditable="true">{
+  "version": "0.1.8",
+  "icon": "transform",
+  "description": "Allows adding objects to the canvas, which are then transforable (translate, rotate, scale).",
+  "tags": [
+    "canvas",
+    "objects"
+  ],
+  "assets": [
+    "hammer.min.js",
+    "transformer.min.js",
+    "transformer.min.js.map",
+    "marked.min.js"
+  ],
+  "dependencies": [
+    {
+      "id": "Kw6McUkB",
+      "name": "Canvas",
+      "optional": false,
+      "usage": "Canvas Objects only works with Canvas package."
+    }
+  ],
+  "changelog": {
+    "0.1": "Initial version.",
+    "0.1.1": "Adapted to changes in context menu",
+    "0.1.2": "Updated transformer.min.js and added transformer.min.js.map.",
+    "0.1.3": "Only create Transformer if not yet exist for canvas object.",
+    "0.1.4": "Lock transform when grid class is enabled.",
+    "0.1.5": "Replaced contenteditable text with markdown notes.",
+    "0.1.6": "Added \"delete item\" menu item.",
+    "0.1.7": "Simplified markdown note structure and added undo delete action.",
+    "0.1.8": "Overflow over components when canvas is unlocked to prevent interaction while moving canvas objects on the canvas."
+  },
+  "github": {
+    "url": "https://github.com/karthikbadam/Vistrates",
+    "folder": "Presentation/VxDJJKw9-CanvasObjects"
+  }
+}</pre></div><div class="paragraph code-paragraph collapsed" data-id="DzTgVcuM" name="Canvas Object Utils"><pre data-type="content" type="text/javascript" id="canvas-object-utils">exports.createCanvasObject = (x, y) =&gt; {
+	const canvasObject = document.createElement("div");
+	canvasObject.classList.add("canvas-object");
+	canvasObject.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+	return canvasObject;
+};</pre></div><div class="paragraph style-paragraph collapsed" data-id="L835z9dK" name="Canvas Object Style"><style data-type="content" type="text/css" codemirror="true">.canvas .canvas-object {
+  color: black;
+	position: absolute;
+}</style></div><div class="paragraph style-paragraph collapsed" data-id="FmwCE38M" name="Canvas Unlocked Object Style"><style data-type="content" type="text/css" codemirror="true">/* .canvas:not(.locked) .canvas-object > * {
+  pointer-events: none;
+} */
+
+.canvas:not(.locked) .canvas-object:after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 250;
+  background-color: transparent;
+  /* must have a color on ie10, if not :after does not exist... */
+/*   opacity: 0; */
+  outline: 1px dashed lightgray;
+}</style></div><div class="paragraph code-paragraph collapsed" data-id="wTiDLbZZ" name="Canvas Object Transformer" last-execution-state="success" run-on-load="true"><pre data-type="content" type="text/javascript">importLib([
+  "hammer.min.js",
+  "transformer.min.js"
+]).then(() =&gt; {
+
+  const initializeCanvasObject = (canvasObject) =&gt; {
+    if (canvasObject.transformer) {
+      return;
+    }
+    
+    const canvas = canvasObject.closest('.canvas');
+    
+    if (!canvas) {
+      throw new Error(`canvas object transformer only works with Canvas package`);
+    }
+
+    (async() =&gt; {
+
+      let transformer = await Transformer.hammerize(canvasObject, {
+        enabled: () =&gt; {
+          return !canvas.classList.contains("locked") &amp;&amp; !canvas.classList.contains("grid");
+        }
+      });
+    })();
+  };
+
+  const liveSelector = document.liveQuerySelectorAll('.canvas-object');
+  liveSelector.added(initializeCanvasObject);
+});</pre></div><div class="paragraph code-paragraph collapsed" data-id="G9PV7yUN" style="" draggable="false" name="Markdown Note Utils" run-on-load="true" last-execution-state="success"><pre data-type="content" type="text/javascript" id="markdown-note-utils">/**
+ * The MarkdownNote plugin adds a functionality to the Pad and allows
+ * adding notes to the canvas. A doubletap on the canvas will create a
+ * new note at the tap location. Another doubletap on the note will switch
+ * the note to a markdown editor view. The note can be edited in this view.
+ * The markdown will be transformed into html markup when the focus of the note
+ * is lost.
+ */
+importLib([
+  "hammer.min.js",
+  "https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"
+]).then(() =&gt; {
+
+  /**
+   * Switch the editmode of a note.
+   *
+   * @param {any} element The actual markdown note element.
+   * @param {any} editable True if editable, false otherwise.
+   *
+   * @memberOf MarkdownNote
+   */
+  const switchEditMode = (element, editable) =&gt; {
+    element.setAttribute("editmode", `${editable}`);
+    if (editable) {
+      const input = element.querySelector('.markdown-input');
+      setTimeout(() =&gt; {
+        input.focus();
+      }, 1);
+    }
+  };
+
+  const getTextContent = (node) =&gt; {
+    if (node.nodeType === 1 &amp;&amp; node.tagName.toUpperCase() === "BR") return "\n";
+    if (node.nodeType == 3) {
+      return node.textContent;
+    }
+    var textContent = "";
+    for (var i = 0; i &lt; node.childNodes.length; i++) {
+      textContent = textContent + getTextContent(node.childNodes[i]);
+    }
+    if (node.nodeType === 1 &amp;&amp; node.tagName.toUpperCase() === "DIV") {
+      textContent = textContent + "\n";
+    }
+    return textContent;
+  };
+
+  // Create a HammerManager (hammer.js) to listen to doubletap events on
+  // the document body. The doubletap events will later be used to add new
+  // markdown notes whenever the user doubletaps on the canvas.
+  const hammerManager = new Hammer.Manager(document.body);
+  hammerManager.add(new Hammer.Tap());
+  hammerManager.add(new Hammer.Tap({
+    event: 'doubletap',
+    taps: 2
+  }));
+  hammerManager.get('doubletap').recognizeWith('tap');
+
+  // Add callback function whenever a doubletap event happens on the document
+  // body.
+  hammerManager.on("tap doubletap", (event) =&gt; {
+
+    if (event.type === "tap") {
+      // console.log('here %o', event);
+
+      // blur active element
+      const activeElement = document.activeElement;
+      if (!event.target.closest('.markdown-note') &amp;&amp;
+        activeElement.closest('.markdown-note')) {
+        event.preventDefault();
+        event.srcEvent.preventDefault();
+        event.srcEvent.stopPropagation();
+        event.srcEvent.stopImmediatePropagation();
+        // console.log('blur element');
+        activeElement.blur();
+      }
+      return;
+    }
+
+    event.preventDefault();
+    event.srcEvent.preventDefault();
+    event.srcEvent.stopPropagation();
+    event.srcEvent.stopImmediatePropagation();
+
+    // When the event target is a markdown note or any of its children, then
+    // switch to markdown note edit mode.
+    const markdownNote = event.target.closest('.markdown-note');
+    // console.log('doubletap %o', markdownNote);
+    if (markdownNote) {
+      switchEditMode(markdownNote, true);
+      return;
+    }
+  });
+
+  /**
+   * Make the markdown note interactive. Add a transient element, which will contain
+   * the transformed markdown into html. It is important to notice that only the markdown
+   * is synchronized by webstrate. The transformed html is added to a transient element
+   * and only available locally.
+   *
+   * @param {any} element The html element with the .markdown-note class.
+   *
+   * @memberOf MarkdownNote
+   */
+  const makeMarkdownNoteInteractive = (element) =&gt; {
+    
+    // only add marked html container once
+    if (element.querySelector('.marked-html')) {
+      return;
+    }
+
+    // Get element containing the actual markdown.
+    const input = element.querySelector('.markdown-input');
+
+    // Make the markdown input element editable (if not already).
+    input.setAttribute("contenteditable", "true");
+
+    // Switch markdown note from edit mode to non-edit mode on blur.
+    input.addEventListener("blur", (event) =&gt; {
+      switchEditMode(element, false);
+    });
+
+    input.addEventListener("mousedown", (event) =&gt; {
+      event.stopImmediatePropagation();
+    });
+
+    // Add a transient element holding the marked html content. Also transform the initial
+    // markdown to html and set it as new innerHTML. Then append the element containing
+    // the marked html to the transient element.
+    const htmlContainer = document.createElement("transient");
+    htmlContainer.classList.add("marked-html");
+    htmlContainer.innerHTML = marked(getTextContent(input));
+    element.appendChild(htmlContainer);
+
+    // In order to listen to changes in the markup, reapply them, and replace
+    // the content of the element holding the html, we use the attributeChanged event on the
+    // actual markdown note element. The editmode attribute will be triggered every time a user
+    // switches the note's editmode, which will be synchronized by Webstrates.
+    let liveAttribute = element.liveAttribute("editmode");
+    liveAttribute.changed((value) =&gt; {
+      htmlContainer.innerHTML = marked(getTextContent(input));
+    });
+  };
+
+  //   /**
+  //    * Create a new markdown note. The function also appends the new note to the canvas element and
+  //    * sets all required css class on the element.
+  //    *
+  //    * @returns The new markdown note element.
+  //    *
+  //    * @memberOf MarkdownNote
+  //    */
+  //   exports.createMarkdownNote = () =&gt; {
+
+  //     const note = document.createElement("div");
+  //     // give each markdown note an ID to reference it in a markdown inline style
+  //     note.setAttribute("id", `note${Codestrate.util.randomString()}`);
+  //     note.classList.add("markdown-note");
+  //     note.setAttribute("editmode", "false");
+
+  //     const markdownInput = document.createElement("div");
+  //     markdownInput.setAttribute("class", "markdown-input");
+  //     markdownInput.innerHTML = '# Hello Note';
+  //     note.appendChild(markdownInput);
+
+  //     return note;
+  //   };
+
+  // Make all markdown note elements already existing on the
+  // canvas interactive. This for example is the case on a browser
+  // reload.
+  //
+  // Enable manipulation on new nodes that are added to the DOM.
+  // This callback will be called whenever a new markdown note was
+  // added (locally or remote) to the canvas. Make each note that was
+  // added to the canvas interactive.
+  const liveSelector = document.liveQuerySelectorAll('.markdown-note');
+  liveSelector.added((note) =&gt; {
+    makeMarkdownNoteInteractive(note);
+  });
+});</pre></div><div class="paragraph style-paragraph collapsed" data-id="raL4g4nL" name="Markdown Note Style" draggable="false" style=""><style data-type="content" type="text/css" codemirror="true">.canvas .markdown-note {
+  background: whitesmoke;
+  padding: 5px;
+  box-shadow: 0 0 10px lightgray;
+}
+
+.canvas .markdown-note:hover:before,
+.canvas .markdown-note .markdown-input:focus:before {
+  content: "#" attr(id);
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding-bottom: 5px;
+  font-weight: bold;
+  font-size: .8em;
+  transform: translate3d(0, -100%, 0);
+}
+
+.canvas .markdown-note[editmode="true"] .markdown-input {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+}
+
+.canvas .markdown-note[editmode="false"] .markdown-input {
+  display: none;
+}
+
+.canvas .markdown-note[editmode="true"] .marked-html {
+  display: none;
+}
+
+.canvas .markdown-note[editmode="false"] .marked-html {
+  display: inline-block;
+  cursor: default;
+}
+
+.canvas .markdown-note>*[contenteditable] {
+  display: inline-block;
+  overflow: hidden;
+  overflow-y: auto;
+  width: 100%;
+  height: 100%;
+}</style></div><div class="paragraph code-paragraph collapsed" data-id="zcGBhHnn" name="Canvas Object Context Menu Items" last-execution-state="success" style="" run-on-load="true"><pre data-type="content" type="text/javascript">importLib([
+  "marked.min.js"
+]).then(() =&gt; {
+
+  const AssetUtils = require('#asset-utils');
+  const CanvasContextMenu = require('#canvas-context-menu');
+  const CanvasObjectUtils = require('#canvas-object-utils');
+
+  const items = [{
+    type: "item",
+    label: "Add text",
+    icon: "text_fields",
+    hidden: (event) =&gt; {
+      return !event.srcEvent.target.closest('.markdown-note');
+    },
+    action: (event) =&gt; {
+      const canvasObject = CanvasObjectUtils.createCanvasObject(event.x, event.y);
+
+      const note = document.createElement("div");
+      // give each markdown note an ID to reference it in a markdown inline style
+      note.setAttribute("id", `note-${Codestrate.util.randomString()}`);
+      note.classList.add("markdown-note");
+      note.setAttribute("editmode", "false");
+
+      const markdownInput = document.createElement("div");
+      markdownInput.setAttribute("class", "markdown-input");
+      markdownInput.innerHTML = '# Hello Note';
+      note.appendChild(markdownInput);
+
+      canvasObject.appendChild(note);
+      event.target.appendChild(canvasObject);
+    }
+  }, {
+    type: "item",
+    label: "Edit text",
+    icon: "mode_edit",
+    hidden: (event) =&gt; {
+      return !!event.srcEvent.target.closest('.markdown-note');
+    },
+    action: (event) =&gt; {
+      // When the event target is a markdown note or any of its children, then
+      // switch to markdown note edit mode.
+      const markdownNote = event.srcEvent.target.closest('.markdown-note');
+      // console.log('doubletap %o', markdownNote);
+      if (markdownNote) {
+        markdownNote.setAttribute("editmode", "true");
+        const input = markdownNote.querySelector('.markdown-input');
+        setTimeout(() =&gt; {
+          input.focus();
+        }, 0);
+      }
+    }
+  }, {
+    type: "item",
+    label: "Upload asset",
+    icon: "attach_file", // "insert_photo",
+    action: (event) =&gt; {
+      webstrate.uploadAsset((error, result) =&gt; {
+        if (error) {
+          alert(error);
+          return;
+        }
+
+        // result can be a plain asset object or an array of asset objects
+        const assets = Array.isArray(result) ? result : [result];
+
+        assets.forEach((asset) =&gt; {
+          const canvasObject = CanvasObjectUtils.createCanvasObject(event.x, event.y);
+          const element = AssetUtils.getElementFromAsset(asset);
+          canvasObject.appendChild(element);
+          event.target.appendChild(canvasObject);
+        });
+      });
+    }
+  }, {
+    type: "item",
+    label: "Delete object",
+    icon: "delete",
+    hidden: (event) =&gt; {
+      return !!event.srcEvent.target.closest('.canvas-object');
+    },
+    action: (event) =&gt; {
+      const canvasObject = event.srcEvent.target.closest('.canvas-object');
+      if (canvasObject) {
+        const parentElement = canvasObject.parentElement;
+        const nextSibling = canvasObject.nextSibling;
+        canvasObject.remove();
+        toast('Object deleted', 5000, () =&gt; {
+          parentElement.insertBefore(canvasObject, nextSibling);
+        }, "Undo");
+      }
+    }
+  }, {
+    // menu item to lock canvas
+    type: "item",
+    label: (event) =&gt; {
+      // is components canvas locked
+      const isCanvasLocked = event.target.classList.contains("locked");
+      return isCanvasLocked ? "Unlock canvas" : "Lock canvas";
+    },
+    icon: (event) =&gt; {
+      // is components canvas locked
+      const isCanvasLocked = event.target.classList.contains("locked");
+      return isCanvasLocked ? "lock_outline" : "lock_open";
+    },
+    action: (event) =&gt; {
+      // toggle locked class to lock or unlock canvas
+      event.target.classList.toggle("locked");
+    }
+  }];
+
+  items.forEach(CanvasContextMenu.addItem);
+
+});</pre></div></div>
