@@ -1,0 +1,51 @@
+<div class="section section-visible" name="GPS Filter Query" data-type="package" data-id="cq4anP5Z" transient-focussed="true"><div class="paragraph body-paragraph collapsed" name="Documentation" data-id="Ca2spwpH"><div data-type="content" type="text/html" codemirror="true" contenteditable="true" class="section-documentation"><h2>GPS Filter Query</h2><div>Generates a bound box searchjs query from a GPS position.</div></div></div><div class="paragraph data-paragraph collapsed locked" name="Properties" data-id="c3kScM4P"><pre data-type="content" type="application/json" class="section-properties" contenteditable="false">{
+	"version": "0.1.2",
+	"icon": "your_material_icon_string",
+	"description": "Generates a bounding box searchjs query from a GPS position.",
+	"tags": [
+		"vistrate"
+	],
+  "assets": [
+		"leaflet.zip"
+	],
+	"dependencies": [
+		{
+			"id": "kTKppb2i",
+			"name": "Vistrate",
+			"optional": false
+		}
+	],
+	"changelog":
+	{
+    "0.1.2": "Changed bounding box.",
+    "0.1.1": "Changed bounding box.",
+		"0.1": "Initial version."
+	},
+  "github": {
+    "url": "https://github.com/karthikbadam/Vistrates",
+    "folder": "Processing/cq4anP5Z-GPSFilter"
+  }
+}</pre></div><div class="paragraph code-paragraph collapsed" name="GPS Filter Query" data-id="iihRSwCk" last-execution-state="success"><pre data-type="content" type="text/javascript-viscontroller" class="viscontroller run-on-add" id="gPSFilterQuery">vc = {
+	data: '$data-id',
+	src: ["data"],
+	props: ["lat", "lng"],
+  libs: ["leaflet.zip/leaflet.js"],
+	update: function(source) {
+    if(!this.src.data || !this.src.data.output || !this.props.lat || !this.props.lng) return;
+    let point = L.latLng(this.props.lat, this.props.lng);
+		let bounds = point.toBounds(400);    
+    let output = {terms: []};
+    let lat_obj = {};
+    lat_obj.latitude = {gte:bounds._southWest.lat, lte:bounds._northEast.lat};
+    output.terms.push(lat_obj);
+    let lng_obj = {};
+    lng_obj.longitude = {gte:bounds._southWest.lng, lte:bounds._northEast.lng};
+    output.terms.push(lng_obj);
+    this.output = output;
+	},
+};</pre></div><div class="paragraph data-paragraph collapsed" name="GPS Filter Query data" data-id="ziZJivNM"><pre data-type="content" type="application/json" id="gPSFilterQuery-data" class="visdata">{
+  "config": {
+    "src": {}
+  },
+  "data": {}
+}</pre></div></div>
