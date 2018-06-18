@@ -1,0 +1,1182 @@
+<div class="section section-visible" name="Vistrate" data-type="package" data-id="kTKppb2i"><div class="paragraph body-paragraph locked collapsed" name="Documentation" data-id="qMZDg43E"><div data-type="content" type="text/html" codemirror="true" contenteditable="false" class="section-documentation"><h2>Vistrate</h2><div>Vistrate provides basic reactive dataflow based means for implementing visualisations.<ul>
+	<li>Use 'VC' in the top menu to create a new vis component template.</li>
+	</ul></div><div>Vis component controller code paragraphs take the following form:</div>
+<pre><code>vc = {
+  data: "id-of-vis-data",
+  src: ["mySourceName_1", ..., "mySourceName_n"],
+  props: ["myProp_1", ..., "myProp_m"],
+  libs: ["myLibraryStoredAsAsset.js", "https://somecdn.com/anotherLibrary.js"],
+  init: function() {
+    ...
+  },
+  destroy: function() {
+    ...
+  }
+  update: function() {
+    ...
+  }
+}</code></pre>
+<ul>
+	<li><code>data</code>: An (optional) ID of a data paragraph specifying the configuration of the components and its stored data.</li>
+	<li><code>src</code>: A list of names for the sources of this component.</li>
+  <li><code>props</code>: A list of property names that can be mapped to properties on sources</li>
+	<li><code>libs</code>: A list of JavaScript libraries that this component should load. They are loaded before init and updated are called. The list can contain references libraries stored as assets or links to libraries stored externally.</li>
+	<li><code>init</code>: This method is called when the component is initialized. It is called every time the user (or remote user) executes the code paragraph.</li>
+	<li><code>destroy</code>: When the code paragraph of a vis component is (re)executed this method is called before the code of the methods are replaced.</li>
+	<li><code>update</code>: Called every time the data of a source component is updated.</li>
+</ul>
+
+<p>
+	The data paragraph of a vis component has the following format:
+</p>
+<pre><code>{
+  config: {
+    src: {"mySourceName_1": "source_1_id", ... , "mySourceName_n": "source_n_id"},  
+    props: {
+      "myProp_1": {
+        "src": "mySourceName_1", 
+        "prop": "somePropOnSource"}
+        , ..., 
+       "myProp_m": {
+         "src": "mySourceName_n",
+         "prop": "someOtherPropOnSource"}
+    },
+    view: "id-of-vis-view"
+  },
+  data: {
+   /* The data of the component */
+  }
+}</code></pre>
+<ul>
+	<li><code>src</code>: (Optional) output source mapping. The ids should be the vis controller ids. The output data of a source is e.g. accessible through <code>this.src.mySourceName_1.output</code></li>
+	<li><code>props</code>: (Optional) mapping from named properties to properties on the sources. These are accessible through e.g. <code>this.props.myProp_1</code> and given the example above this would point to <code>this.src.mySourceName_1.output.somePropOnSource</code></li>
+	<li><code>view</code>: The (optional) ID of a view component. Accesible through <code>this.view</code>.</li>
+	<li><code>data</code>: Arbitrary (serializable) JSON can be stored here. The data is accessible through <code>this.data</code> and can be set through e.g. <code>this.data = {"foo": "bar"}</code></li>
+</ul>
+
+<p>
+	The first time a vis controller code paragraph is executed a VisController is instantiated the <code>src</code>, <code>view</code> and <code>data</code> is populated with, and the <code>init</code>, <code>destroy</code> and <code>update</code> methods added to the instance. When a vis component code paragraph is re-executed the methods of the instance are swapped with the (potentially) changed methods from the code paragraph.
+</p>
+
+<p>
+	Every component has a <code>output</code> property. When this property is set, all observing components are notified triggering a call to their <code>update</code> method.
+</p>
+<p>
+	The content of a VisView (stored in the <code>view</code> property of a component) can be set using the setter <code>this.view.content</code>. It can either be set to an HTML string or a DOM element. <code>this.view.element</code> returns the root DOM element of a VisView. The content of a VisView is always <a href="https://webstrates.github.io/userguide/api/transient.html">transient</a>.
+</p></div></div><div class="paragraph data-paragraph locked" name="Properties" data-id="BzH3g9iA"><pre data-type="content" type="application/json" class="section-properties" contenteditable="false">{
+  "version": "0.15.18",
+  "icon": "drawing_box",
+  "description": "Vistrate provides basic reactive dataflow based means for implementing visualisations.",
+  "tags": [
+    "visualization",
+    "data flow",
+    "programming"
+  ],
+  "assets": [],
+  "dependencies": [],
+  "changelog": {
+    "0.15.18": "Renaming global menu entries from Codestrate to Vistrate",
+    "0.15.17": "Run-on-add class on viscontroller executes the paragraph when it is added to the document.",
+    "0.15.16": "Added sourceURL to make debugging of VC code possible.",
+    "0.15.15": "New style for create vistrate component dialog.",
+    "0.15.14": "Introduced moveTo and moveBack methods on VisView",
+    "0.15.13": "Fixed issue with overwiting view when reloading config",
+    "0.15.12": "Disabled function from 0.15.11 temporarily",
+    "0.15.11": "Added option to set run-on-add class on viscontroller paragraph, which will run the paragraph when the component is added after loaded",
+    "0.15.10": "Fixed issue where components would only work if they were in the same order in the document as connected in the pipeline",
+    "0.15.9": "Disabled clipping on visviews",
+    "0.15.8": "Introduced skip class for skipping paragraphs in components",
+    "0.15.7": "Updated style of component creator",
+    "0.15.6": "Added friendlyName to controller, i.e. so we can have more meaningful names for the Vistrate Component Canvas",
+    "0.15.5": "Fixed issue with naming when creating components from template.",
+    "0.15.4": "Props are now removed when the config object is edited.",
+    "0.15.3": "Props can now programatically be added.",
+    "0.15.2": "Added viewClassNames property to config to set custom classes to the controller view element.",
+    "0.15.1": "The controller config is now exposed and accessible as this.config in the controller functions init, destroy, and update.",
+    "0.15": "The vis controller configuration now allows for setting the tagName for the vis view",
+    "0.14.4": "Updated package to use #section-utils to create a section instead of replicating the functionality in Vistrates packages (this will only work with the most recent codestrate version)",
+    "0.14.3": "Fixed bug that would return the label for a property even when the value exists but the value evaluates to false (i.e. number 0 and boolean false).",
+    "0.14.2": "Another minor bug fix",
+    "0.14.1": "Minor bug fixes",
+    "0.14": "Added prelimenary component template support",
+    "0.13.1": "Property mapping change so if value on source doesn't exist the property name as a string is returned",
+    "0.13": "Introduced property mapping",
+    "0.12.6": "Fixed VC template",
+    "0.12.5": "Fixed timing issue with libs",
+    "0.12.4": "VisController's data property now returns a copy of the data",
+    "0.12.3": "Sources can now programatically be added and removed.",
+    "0.12.2": "A component can now only have the named sources",
+    "0.12.1": "Minor bug fixes",
+    "0.12": "Sources is now a map from source name to source ID",
+    "0.11.3.1": "Minor bug fix",
+    "0.11.3": "Reverted previous changes (didn't work as intended). Added source to update",
+    "0.11.2": "Minor simplifications in handling of scope on controller methods (thanks kba!)",
+    "0.11.1": "Made view part of data, making it reconfigurable on runtime",
+    "0.11": "Substantial rewrite, see documentation and examples.",
+    "0.10.1": "Fixed issue with importing libs being asynchronous. NB: Still not completely fixed, update of a component with libs may be called from another component before init has been called.",
+    "0.10": "Added a libs property to handle import of external libs before init is called",
+    "0.9.2": "Updated documentation and examples",
+    "0.9.1": "Fixed issue where reloading codestrate would trigger re-run of all remote vis components",
+    "0.9": "Added store property to data paragraph vis component",
+    "0.8.1": "Changed vis component template and icon font",
+    "0.8": "Added support for observing the state of the Vistrate singleton",
+    "0.7": "Added VisView component and viscomponents can now have a view property for easy outputting",
+    "0.6.1": "Fixed bug where a viscomponent without a src property would cause and error",
+    "0.6": "Added Vistrate.store to store data back into a viscomponent data paragraph",
+    "0.5": "Now allows for a component to have multiple data sources",
+    "0.4": "Fixed scoping issue in viscomponent code",
+    "0.3": "Vis components can now have a init and destroy method",
+    "0.2": "Now supports remote execution of viscomponent code paragraphs",
+    "0.1": "Initial version."
+  },
+  "github": {
+		"url": "https://github.com/karthikbadam/Vistrates",
+		"folder": "Vistrates"
+	}
+}</pre></div><div class="paragraph code-paragraph collapsed" data-id="pbHZSWA2" name="Vistrate" last-execution-state="success" run-on-load="true" draggable="false" style=""><pre data-type="content" type="text/javascript">/*
+	Vistrate is a singleton used to register visualization components, and register observers between them.
+*/
+window.Vistrate = {
+	outputs: {},
+	ownObservers: [],
+	outputObservers: {},
+	registerOutput: function(output) {
+		this.outputs[output.id] = output;
+		this.notifyVistrateObservers();
+	},
+	unregisterOutput: function(output) {
+		if (this.outputs[output.id]) {
+			delete this.outputs[output.id];
+		}
+		this.notifyVistrateObservers();
+	},
+	getOutput: function(id) {
+		return this.outputs[id];
+	},
+	removeOutput: function(id) {
+		if (this.outputs[id]) delete this.outputs[id];
+		this.notifyVistrateObservers();
+	},
+	registerObserver: function(id, observer) {
+		if (!this.outputObservers[id]) this.outputObservers[id] = [];
+		this.outputObservers[id].push(observer);
+		this.notifyVistrateObservers();
+	},
+	getObservers: function(id) {
+		return this.outputObservers[id];
+	},
+	removeObserver: function(id, observer) {
+		if (!this.outputObservers[id]) return;
+		let index = this.outputObservers[id].indexOf(observer);
+		if (index &gt; -1) {
+			this.outputObservers[id].splice(index, 1);
+		}
+		this.notifyVistrateObservers();
+	},
+	removeAllObservers: function(id) {
+		if (!this.outputObservers[id]) return;
+		delete this.outputObservers[id];
+		this.notifyVistrateObservers();
+	},
+	// Methods below for observing the state of Vistrate
+	observeVistrate: function(observer) {
+		this.ownObservers.push(observer);
+	},
+	removeObserverFromVistrate: function(observer) {
+		const index = this.ownObservers.indexOf(observer);
+		if (index &gt; -1) {
+			this.ownObservers.splice(index, 1);
+		}
+	},
+	notifyVistrateObservers: function() {
+		this.ownObservers.forEach((o)=&gt; {
+			o();
+		});
+	}
+};</pre></div><div class="paragraph code-paragraph collapsed" data-id="qyM6RkVB" name="Change Codestrate Menu Entries" last-execution-state="success" run-on-load="true"><pre data-type="content" type="text/javascript">const codestrateSubMenu = document.querySelector('.sub-menu[name="Codestrate"]');
+codestrateSubMenu.setAttribute("name", "Vistrate");
+codestrateSubMenu.querySelector('.label span.title').innerText = "Vistrate";
+
+const buttons = Array.from(codestrateSubMenu.querySelectorAll('.menu-button'));
+buttons.forEach((button) =&gt; {
+  button.innerText = button.innerText.replace(/Codestrate/g, "Vistrate");
+});</pre></div><div class="paragraph code-paragraph collapsed" name="Observable Output" last-execution-state="success" run-on-load="true" data-id="9cuf2xdM" style=""><pre data-type="content" type="text/javascript" id="observableOutput">/*
+	ObservableOutput implements a simple observer pattern (mediated over the Vistrate singleton).
+	Observe is used to add an observer, and when the data of an ObservableOutput is updated, all observers are notified.
+*/
+class ObservableOutput {
+	constructor(id) {
+		this.id = id;
+		Vistrate.registerOutput(this);
+	}
+	
+	observe(observer) {
+		Vistrate.registerObserver(this.id, observer);
+	}
+	
+	removeObserver(observer) {
+		Vistrate.removeObserver(this.id, observer);
+	}
+	
+	removeAllObservers() {
+		Vistrate.removeAllObservers(this.id);
+	}
+	
+	unregister() {
+		Vistrate.unregisterOutput(this);
+	}
+	
+	get output() {
+		return this._output;
+	}
+	
+	_notify() {
+		let observers = Vistrate.getObservers(this.id);
+		if (!observers) return;
+		observers.forEach((o) =&gt; {
+			o(this.id);
+		});		
+	}
+	
+	set output(data) {
+		this._output = data;
+		this._notify();
+	}
+}
+
+exports.ObservableOutput = ObservableOutput;</pre></div><div class="paragraph code-paragraph collapsed" name="ParagraphOutput" data-id="Atrf4R6H" run-on-load="true" last-execution-state="success"><pre data-type="content" type="text/javascript" id="paragraphOutput">const ObservableOutput = require("#observableOutput").ObservableOutput;
+
+/*
+	ParagraphOutput is a simple extension of ObservableOutput that uninstalls all observers if the ID of the given paragraph changes.
+*/
+class ParagraphOutput extends ObservableOutput {
+	constructor(id, paragraph, friendlyName) {
+		super(id);
+		this.paragraph = paragraph;
+		this.friendlyName = friendlyName;
+		// Mutation observer for handling that the id change.
+		this.mo = new MutationObserver((mutations) =&gt; {this._handleMutations(mutations);});
+		this.mo.observe(paragraph, {attributes: true});
+	}
+	
+	_handleMutations(mutations) {
+		for (var i =0; i&lt;mutations.length; i++) {
+			let mutation = mutations[i];
+			if (mutation.attributeName === "id") {
+				this.removeAllObservers();
+				this.unregister();
+				this.id = this.paragraph.id;
+				Vistrate.registerOutput(this);
+			}
+		}
+	}
+}
+
+exports.ParagraphOutput = ParagraphOutput;</pre></div><div class="paragraph code-paragraph collapsed" name="VisController" data-id="inq4eFYS" last-execution-state="success" run-on-load="true"><pre data-type="content" type="text/javascript" id="visController">const ParagraphOutput = require("#paragraphOutput").ParagraphOutput;
+const ObservableOutput = require("#observableOutput").ObservableOutput;
+const VisView = require("#visView").VisView;
+
+/*
+	VisController 
+*/
+class VisController extends ParagraphOutput {
+	constructor(id, paragraph, friendlyName, sourceNames, propNames) {
+		super(id, paragraph, friendlyName);
+		this._src = {};
+		this._props = {};
+		if (sourceNames) {
+			sourceNames.forEach((sn) =&gt; {
+				this._src[sn] = null;
+			});
+		}
+		if (propNames) {
+			propNames.forEach((pn) =&gt; {
+				this._props[pn] = null;
+			});
+		}
+		this._dataParagraphObserver = new MutationObserver((mutations) =&gt; {
+																												this._handleDataUpdate();
+																											});
+		this._mutationObserverOptions = {characterData: true, subtree: true, childList: true};
+	}
+	
+	set dataParagraph(dataParagraph) {
+		this._dataParagraphObserver.disconnect();
+		this._dataParagraph = dataParagraph;
+		if (this._dataParagraph) this._dataParagraphObserver.observe(this._dataParagraph, this._mutationObserverOptions);
+		this._loadDataFromDataParagraph(false);
+	}
+	
+	get dataParagraph() {
+		return this._dataParagraph;
+	}
+	
+	set view(view) {
+		this._view = view;
+	}
+	
+	get view() {
+		return this._view;
+	}
+	
+	set update(update) {
+		Object.keys(this._src).forEach((name) =&gt; {
+			const source = this._src[name];
+			if (source) source.removeObserver(this.update);
+		});
+		this._update = update;
+		Object.keys(this._src).forEach((name) =&gt; {
+			const source = this._src[name];
+			if (source) source.observe(this.update);
+		});
+	}
+	
+	get update() {
+		return this._update;
+	}
+	
+	get src() {
+		return this._src;
+	}
+	
+	get data() {
+		// Return the empty object if the data paragraph does not contain a data object
+		if(this._data === undefined) return {};
+		return JSON.parse(JSON.stringify(this._data));
+	}
+	
+	set data(data) {
+		this._dataParagraph.firstChild.textContent = JSON.stringify({config: this.config, data: data}, null, 2);
+	}
+	
+	get props() {
+		let handler = {
+			get: (target, name) =&gt; {
+				if (!target._props[name]) return undefined;
+				else {
+					let src = target._props[name].src;
+					let prop = target._props[name].prop;
+					let val = target.src[src].output[prop];
+					
+					// @Roman changed it to check undefined with typeof to make sure that values like numbers 0 or
+					// boolean get returned, otherwise 0 and false both evaluate to false which will return
+					// prop instead of val.
+					if (typeof val !== 'undefined') return val;
+					return prop;
+				}
+			},
+			set: function(target, name, value) {
+				return;
+			}
+		};
+		return new Proxy(this, handler);
+	}
+	
+	/*
+		Use this method to programatically add a source to a component. It will update the data paragraph of the compoment.
+	*/
+	addSource(name, source) {
+		// If source is an ObservableOutput we get the ID
+		if (source instanceof ObservableOutput) source = source.id;
+		// If its a string we'll remove a leading #
+		source = source.replace(/#/i, "");
+		if (this._src[name] === undefined) {
+			throw new Error(name + " not in source list");
+		}
+		let newConfig = JSON.parse(JSON.stringify(this.config));
+		if (!newConfig.src) newConfig.src = {};
+		newConfig.src[name] = source;
+		this._dataParagraph.firstChild.textContent = JSON.stringify({config: newConfig, data: this.data}, null, 2);
+	}
+	
+	/*
+		Use this method to programatically add a property to a component. It will update the data paragraph of the compoment.
+	*/
+	addProp (propName, sourceName, prop) {
+		if(this._props[propName] === undefined){
+			throw new Error(propName + " not in prop list");
+		}
+		if (this._src[sourceName] === undefined) {
+			throw new Error(sourceName + " not in source list");
+		}
+		let newConfig = JSON.parse(JSON.stringify(this.config));
+		if(!newConfig.props) newConfig.props = {};
+		let temp = {src: sourceName, prop: prop};
+		newConfig.props[propName] = temp;
+		this._dataParagraph.firstChild.textContent = JSON.stringify({config: newConfig, data: this.data}, null, 2);
+	}
+
+	/*
+		Use this method to programatically remove a source to a component. It will update the data paragraph of the compoment.
+	*/
+	removeSource(name) {
+		if (this._src[name] === undefined) {
+			throw new Error(name + " not in source list");
+		}
+		let newConfig = JSON.parse(JSON.stringify(this.config));
+		if (newConfig.src) newConfig.src[name] = null;
+		this._dataParagraph.firstChild.textContent = JSON.stringify({config: newConfig, data: this.data}, null, 2);
+	}
+	
+	_addSource(name, source) {
+		if (this._src[name] &amp;&amp; this.src[name] === source) return;
+		if (this._src[name] === undefined) {
+			throw new Error(name + " not in source list");
+		}
+		this._src[name] = source;
+		source.observe(this.update);
+	}
+	
+	_removeSource(name) {
+		if (!this._src[name]) return;
+		if (this._src[name] === undefined) {
+			throw new Error(name + " not in source list");
+		}
+		const source = this._src[name];
+		if (source instanceof ObservableOutput) source.removeObserver(this.update);
+		this._src[name] = null;
+	}
+	
+	_clearSources() {
+		Object.keys(this._src).forEach((name) =&gt; {
+			const source = this._src[name];
+			if (source &amp;&amp; source instanceof ObservableOutput) source.removeObserver(this.update);
+			this._src[name] = null;
+		});
+	}
+	
+	_clearProps() {
+		Object.keys(this._props).forEach((name) =&gt; {
+			this._props[name] = null;
+		});
+	}
+	
+	_updateConfig(config, reset) {
+		if (reset &amp;&amp; this.destroy) {
+			try {
+				this.destroy();			
+			} catch(e) {
+				console.warn("Destroy failed with following error", e);
+			}
+		}
+    let oldView = this.config &amp;&amp; this.config.view ? this.config.view : undefined;
+		this.config = config;
+		this._clearSources();
+		this._clearProps();
+		if (this.config.src) {
+			Object.keys(this.config.src).forEach((name) =&gt; {
+				const source = this.config.src[name];
+				if (source) {
+					let sourceController = Vistrate.getOutput(source);
+					if (sourceController instanceof ObservableOutput) this._addSource(name, sourceController);
+          else {
+            let vistrateObserver = () =&gt; {
+							sourceController = Vistrate.getOutput(source);
+							if (sourceController instanceof ObservableOutput) {
+                this._addSource(name, sourceController);
+                Vistrate.removeObserverFromVistrate(vistrateObserver);
+              }
+            };
+            Vistrate.observeVistrate(vistrateObserver);
+          }
+				}
+			});
+		}
+		if (this.config.props) {
+			Object.keys(this.config.props).forEach((name) =&gt; {
+				const prop = this.config.props[name];
+				if (prop &amp;&amp; prop.src !== undefined &amp;&amp; prop.prop !== undefined &amp;&amp; this._props[name] !== undefined) {
+					this._props[name] = prop;
+				}
+			});
+		}
+		if (this.config.view &amp;&amp; this.config.view !== oldView &amp;&amp; document.getElementById(this.config.view)) {
+			this.view = new VisView(document.getElementById(this.config.view), this.config.viewTagName, this.config.viewClassNames);
+		} else if (this.config.view === undefined) {
+			this.view = undefined;
+		}
+		if (reset &amp;&amp; this.init) this.init();
+		if (reset &amp;&amp; this.update) this.update(undefined);
+	}
+	
+	_updateData(data) {
+		this._data = data;
+		if (this.update) this.update("ownData");
+	}
+	
+	_loadDataFromDataParagraph(reset) {
+		let dataFromParagraph;
+		try {
+			dataFromParagraph = JSON.parse(this._dataParagraph.innerHTML);
+		} catch (e) {
+			console.warn(e);
+			return;
+		}
+		const newConfig = dataFromParagraph.config;
+		const newData = dataFromParagraph.data;
+		if (JSON.stringify(this.config) !== JSON.stringify(newConfig)) this._updateConfig(newConfig, reset);
+		if (JSON.stringify(this._data) !== JSON.stringify(newData)) this._updateData(newData);
+	}
+	
+	_handleDataUpdate() {
+		this._loadDataFromDataParagraph(true);
+	}
+}
+
+exports.VisController = VisController;</pre></div><div class="paragraph code-paragraph collapsed" name="VisData" data-id="7TVf3W2H" last-execution-state="success" draggable="false" style="" run-on-load="true"><pre data-type="content" type="text/javascript" id="visData">document.liveQuerySelectorAll('pre[type="application/json"].visdata').added((paragraph) =&gt; {
+	const id = paragraph.id;
+	const controllerId = id.split("-")[0];
+	const controller = Vistrate.getOutput(controllerId);
+	if (controller) controller.dataParagraph = paragraph;
+});</pre></div><div class="paragraph code-paragraph collapsed" name="VisView" data-id="ZPGV5jxc" last-execution-state="success"><pre data-type="content" type="text/javascript" id="visView">/*
+	VisView is a convinience class for easily creating output from a vis component
+*/
+class VisView {
+	constructor(target, containerTagName = "transient", classNames = []) {
+    
+		this.parent = target;
+		this.id = target.id;
+    this.parentStack = [this.parent];
+		this.element = target.querySelector(`${containerTagName}.visview`);
+		if (!this.element) {
+			this.element = document.createElement(containerTagName);
+			this.element.classList.add("visview");
+			this.parent.appendChild(this.element);
+		}
+		
+		// add additional classes to view element
+		if (Array.isArray(classNames)) {
+			classNames.forEach((className) =&gt; this.element.classList.add(className));
+		}
+	}
+	
+	set content(e) {
+		this.element.innerHTML = "";
+		if (e instanceof HTMLElement) {
+			this.element.appendChild(e);
+		} else {
+			this.element.innerHTML = e;
+		}
+	}
+  
+  moveTo(target, referenceNode) {
+    if (referenceNode) {
+      target.insertBefore(this.element, referenceNode);
+    } else {
+	    target.appendChild(this.element);    
+    }
+    this.parentStack.push(target);
+  }
+  
+  moveBack() {
+    if (this.parentStack.length == 1) return;
+    this.parentStack.pop();
+    this.parentStack[this.parentStack.length-1].appendChild(this.element);
+  }
+	
+	appendChild(child) {
+		this.element.appendChild(child);
+	}
+}
+
+exports.VisView = VisView;
+//document.liveQuerySelectorAll('div[data-type="content"].visview').added((paragraph) =&gt; {
+//	const vv = new VisView(paragraph);
+//});</pre></div><div class="paragraph code-paragraph collapsed" name="VisComponent VM Helper" data-id="2YDrSr88"><pre data-type="content" type="text/javascript" id="VCVMHelper">exports.createMethod = function (f, argNames, codeSource) {
+  if (!f) return undefined;
+  const fStr = f.toString();
+  let fBody = fStr.slice(fStr.indexOf("{") + 1, fStr.lastIndexOf("}"));
+  fBody = `${fBody}\n//# sourceURL=${codeSource}_${f.name}`;
+  return new Function(...argNames, fBody);
+};
+
+exports.getArgs = function (context) {
+  let argNames = Object.keys(context);
+  let args = argNames.map((key) =&gt; context[key]);
+  args = args.map((f) =&gt; {
+    if (typeof f !== "function") return f;
+    return function () {
+      let fArgs = [].slice.call(arguments);
+      return f.call(context.paragraph, ...fArgs);
+    };
+  });
+  return args;
+};</pre></div><div class="paragraph code-paragraph collapsed" last-execution-state="success" name="VisComponent VM" data-id="mYGb6Cn5" run-on-load="true" style=""><pre data-type="content" type="text/javascript" contenteditable="true">const helper = require("#VCVMHelper");
+const VisController = require("#visController").VisController;
+
+// Vis components should use the same syntax highlighting and linter as regular javascript
+CodeMirror.defineMIME("text/javascript-viscontroller", "javascript");
+
+var remote = false;
+Codestrate.VirtualMachines.create(["text/javascript-viscontroller"], function (code, context) {
+  const codeParagraphContent = context.paragraph.querySelector("pre");
+  const codeId = codeParagraphContent.id;
+  const friendlyName = context.paragraph.getAttribute("name") || code.id;
+  let argNames = Object.keys(context);
+  let args = helper.getArgs(context);
+
+  if (!codeId || !codeId.length) {
+    alert("No ID of vis component code defined");
+    return;
+  }
+  // Evaluate the code, and if properly formatted an object with src and update will be stored in vc
+  // do not use sourceURL for global vc code because the init, update, and destroy functions have
+  // their own sourceURL
+//   code = `${code}\n//# sourceURL=${context.codeSource}`;
+  const func = new Function(`return ${code}`);
+  const vc = func();
+
+  if (typeof vc === 'undefined') {
+    alert("vc not defined in vis component code. Must start with vc = {..}");
+    return;
+  }
+  // We'll check if it has been instantiated before
+  let controller = Vistrate.getOutput(codeId);
+  if (!controller) {
+    // If not we create it
+    controller = new VisController(
+      codeId,
+      codeParagraphContent,
+      friendlyName,
+      vc.src,
+      vc.props
+    );
+  } else if (controller.destroy) {
+    // We make sure to call its destroy method
+    controller.destroy.call(controller, ...args);
+  }
+
+  controller.libs = vc.libs;
+
+  // add additional functions to the controller, which can be called in init,
+  // update, and destroy functions
+  // before doing that bind functions to VisController instance
+  if (typeof vc.functions === 'object') {
+    Object.keys(vc.functions).forEach((key) =&gt; {
+      const func = vc.functions[key];
+      if (typeof func === 'function') {
+        vc.functions[key] = func.bind(controller);
+      }
+    });
+    controller.functions = vc.functions;
+  }
+
+  // We update its methods and bind it to the proper context	
+  let init = helper.createMethod(vc.init, argNames, context.codeSource);
+  if (init) controller.init = init.bind(controller, ...args);
+  let destroy = helper.createMethod(vc.destroy, argNames, context.codeSource);
+  if (destroy) controller.destroy = destroy.bind(controller, ...args);
+  let updateArgNames = argNames.slice();
+  argNames.unshift("source");
+  let update = helper.createMethod(vc.update, argNames, context.codeSource);
+  if (update) {
+    controller.update = function (source) {
+      if (!controller._initialized) return;
+      let updateArgs = args.slice();
+      updateArgs.unshift(source);
+      update.call(controller, ...updateArgs);
+    };
+  } else {
+    controller.update = undefined;
+  }
+
+  // Signal to other users that they should re-run this code paragraph
+  if (!remote &amp;&amp; Codestrate.loaded) {
+    context.paragraph.webstrate.signal({
+      run: true
+    });
+  }
+
+  if (vc.data) {
+    controller.dataParagraph = document.getElementById(vc.data);
+  }
+
+  const runCode = () =&gt; {
+    // We call its init method
+    //console.log("RUNCODE", args);
+    if (controller.init) controller.init.call(controller, ...args);
+    controller._initialized = true;
+    // Finally we call update so components following this on in the pipeline gets updated
+    let updateArgs = args.slice();
+    updateArgs.unshift(undefined);
+    if (controller.update) controller.update.call(controller, ...updateArgs);
+  };
+
+  // If the component has a list of libs it requires, import these first before calling runCode.
+  if (controller.libs &amp;&amp; controller.libs.length &gt; 0) {
+    (async() =&gt; {
+      await importLib(controller.libs);
+      runCode();
+    })();
+  } else {
+    runCode();
+  }
+});
+
+// inherit current state of JavaScript VM context
+const jsVM = Codestrate.VirtualMachines.get("text/javascript");
+const visVM = Codestrate.VirtualMachines.get("text/javascript-viscontroller");
+visVM.addToGlobalContext(jsVM.context);
+
+// The code below installs a listener for signals for running code from remote clients
+document.liveQuerySelectorAll("pre[type='text/javascript-viscontroller']").added((para) =&gt; {
+  para.closest(".paragraph").webstrate.on("signal", (msg, sender) =&gt; {
+    // If the signal doesnt have a run property return
+    if (!msg.run) return;
+    // If the sender is our webstrate return
+    if (sender === webstrate.clientId) return;
+    // Use a flag to avoid a signalling feedback loop
+    remote = true;
+    // Execute the code paragraph
+    para.closest(".paragraph").querySelector(".execute-paragraph").click();
+    remote = false;
+  });
+});</pre></div><div class="paragraph code-paragraph collapsed" name="Vistrate Component Helper" data-id="Quvmr7AD"><pre data-type="content" type="text/javascript" id="vistrateComponentHelper">const SectionUtils = require("#section-utils");
+const ParagraphUtils = require("#paragraph-utils");
+
+function addSection(name) {
+	const section = SectionUtils.createSection(name, "viscomponent");
+
+	const sections = document.querySelector('#sections');
+	if (Codestrate.focussedSection) {
+		sections.insertBefore(section, Codestrate.focussedSection.nextSibling);
+	} else {
+		sections.appendChild(section);
+	}
+	return section;
+}
+
+function createBlankComponent(name, id) {
+	let section = addSection(name);
+	const code = ParagraphUtils.createCodeParagraph();
+	code.setAttribute("name", name);
+	const codePre = code.querySelector("pre");
+	codePre.setAttribute("type", "text/javascript-viscontroller");
+	codePre.classList.add("viscontroller");
+	codePre.id = id;
+	codePre.innerHTML = `vc = {
+	data: '${id+"-data"}',
+	src: [],
+	props: [],
+	init: function() {
+
+	},
+	destroy: function() {
+
+	},
+	update: function(source) {
+	
+	},
+};`;
+	// State
+	const state = ParagraphUtils.createDataParagraph();
+	state.setAttribute("name", name + " data");
+	const statePre = state.querySelector("pre");
+	statePre.id = id + "-data";
+	statePre.classList.add("visdata");
+	statePre.innerHTML = `{
+  "config": {
+    "src": {},
+    "view": "${id+'-view'}"
+  },
+  "data": {}
+}`;
+	// View
+	const view = ParagraphUtils.createBodyParagraph();
+	view.setAttribute("name", name + " view");
+	const viewDiv = view.querySelector("div");
+	viewDiv.id = id + "-view";
+	viewDiv.setAttribute("class", "visview");
+
+	section.appendChild(code);
+	section.appendChild(state);
+	section.appendChild(view);
+	Codestrate.focussedSection = section;
+	Codestrate.focussedParagraph = code;
+}
+
+function createComponentFromTemplate(name, id, template) {
+	let section = addSection(name);
+	let paragraphs = template.querySelectorAll(".paragraph");
+	[].forEach.call(paragraphs, (paragraph) =&gt; {
+		if (paragraph.querySelector(".section-properties")) return;
+		if (paragraph.querySelector(".section-documentation")) return;
+		if (paragraph.querySelector(".skip")) return;
+		let cloned = paragraph.cloneNode(true);
+		// Remove transients
+		let transients = cloned.querySelectorAll("transient");
+		[].forEach.call(transients, (t) =&gt; {
+			t.remove();
+		});
+		let content = cloned.querySelector("*[data-type='content']");
+		if (content.id.includes("-data")) {
+			cloned.setAttribute("name", name + " data");
+			content.id = id+"-data";
+		} 
+		if (content.id.includes("-view")) {
+			cloned.setAttribute("name", name + " view");
+			content.id = id+"-view";
+		} 
+		if (content.classList.contains("viscontroller")) {
+			cloned.setAttribute("name", name);
+			content.id = id;
+      
+      // WORKAROUND to auto-run code paragraphs when adding them to the
+      // document. This needs to be fixed after InfoVis deadline.
+      // Set paragraph run-on-load and hide collapsed paragraphs in section
+      if (content.matches('.run-on-add')) {
+        cloned.setAttribute("run-on-load", "true");
+        section.classList.add("hide-collapsed-paragraphs");
+      }
+		} 
+ 		content.innerHTML = content.innerHTML.replace("$data-id", id + "-data");
+		content.innerHTML = content.innerHTML.replace("$view-id", id + "-view");
+		section.appendChild(cloned);
+	});
+	Codestrate.focussedSection = section;
+  
+  // This is a HACK that needs to be fixed because it can result in undeterministic
+  // execution behavior when remote clients have not yet received the DOM elements.
+  // execute run-on-load paragraphs after a timeout to make sure they exist
+  // on remote clients
+  setTimeout(() =&gt; {
+    const contents = section.querySelectorAll('.code-paragraph[run-on-load="true"] .viscontroller[data-type="content"]');
+    const paragraphs = Array.prototype.map.call(contents, (content) =&gt; {
+      return content.closest('.code-paragraph');
+    });
+    
+    window.console.log('executing paragraphs', paragraphs);
+    Codestrate.executeParagraphsSync(paragraphs);
+  }, 2000);
+}
+
+
+exports.createComponent = (name, id, template, focussedParagraph, focussedSection, templates) =&gt; {
+	// Code
+	if (template.toLowerCase() === "blank") {
+		createBlankComponent(name, id);	
+	}
+	else {
+		createComponentFromTemplate(name, id, templates[template]);
+	}
+};
+
+exports.camelize = (str) =&gt; {
+ return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index) {
+    return index === 0 ? letter.toLowerCase() : letter.toUpperCase();
+  }).replace(/\s+/g, '');
+};</pre></div><div class="paragraph code-paragraph collapsed" name="Toolbar integration" data-id="DL74Y9wg" run-on-load="true" last-execution-state="success" style=""><pre data-type="content" type="text/javascript">const GlobalToolbarUtils = require("#global-toolbar-utils");
+const ParagraphUtils = require("#paragraph-utils");
+const VistrateComponentHelper = require("#vistrateComponentHelper");
+
+GlobalToolbarUtils.addDivider(1, "vistrate-package");
+GlobalToolbarUtils.addButton("Add new vis component", "VC", "viscomponent-toolbar-icon", 1, () =&gt; {
+  const packages = document.querySelectorAll('.section[data-type="package"]');
+  const visComponentTemplates = {};
+  [].forEach.call(packages, (package) =&gt; {
+    const sectionProperties = package.querySelector(".section-properties");
+    if (!sectionProperties) return;
+    let properties;
+    try {
+      properties = JSON.parse(sectionProperties.innerHTML);
+    } catch (e) {
+      console.warn(e);
+      return;
+    }
+    if (properties &amp;&amp; properties.tags &amp;&amp; properties.tags.indexOf("vistrate") &gt; -1) {
+      visComponentTemplates[package.getAttribute("name")] = package;
+    }
+  });
+
+  const focussedParagraph = Codestrate.focussedParagraph;
+  const focussedSection = Codestrate.focussedSection;
+
+  const transient = document.createElement("transient");
+
+  const elements = require("#dialog-template", {
+    title: "Create new Vistrate Component",
+    message: `
+&lt;h3&gt;Select template&lt;/h3&gt;
+&lt;div class="vistemplates"&gt;
+  &lt;div class="vistemplate selected" data-id="blank"&gt;
+    &lt;span class="label"&gt;Blank&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+&lt;input type="text" class="name" placeholder="Name" required&gt;&lt;br&gt;
+&lt;input class="id" type="text" name="id" placeholder="id" required pattern="[^' ']+"&gt;
+`,
+    actions: `&lt;div class="button ok"&gt;Create&lt;/div&gt;
+&lt;div class="button cancel"&gt;Cancel&lt;/div&gt;`,
+    className: "vistrates create-new-component"
+  });
+
+  elements.forEach(e =&gt; transient.appendChild(e));
+
+  let templates = transient.querySelector(".vistemplates");
+  Object.keys(visComponentTemplates).forEach((template) =&gt; {
+    let templateDiv = document.createElement("div");
+    templateDiv.classList.add("vistemplate");
+    templateDiv.innerHTML = `&lt;span class="label"&gt;${template}&lt;/span&gt;`;
+    templateDiv.setAttribute("data-id", template);
+    templates.appendChild(templateDiv);
+  });
+  templates.addEventListener("click", (e) =&gt; {
+    if (!e.target.classList.contains("vistemplate")) return;
+    [].forEach.call(templates.querySelectorAll(".vistemplate"), t =&gt; t.classList.remove("selected"));
+    e.target.classList.add("selected");
+  });
+
+  transient.querySelector(".ok").addEventListener("click", () =&gt; {
+    const name = transient.querySelector(".name");
+    const id = transient.querySelector(".id");
+    const selectedTemplate = templates.querySelector(".selected").getAttribute("data-id");
+    if (!name.checkValidity() || !id.checkValidity()) return;
+    VistrateComponentHelper.createComponent(name.value, id.value, selectedTemplate, focussedParagraph, focussedSection, visComponentTemplates);
+    transient.remove();
+  });
+
+  transient.querySelector(".cancel").addEventListener("click", () =&gt; {
+    transient.remove();
+  });
+
+  transient.querySelector(".name").addEventListener("keyup", (e) =&gt; {
+    transient.querySelector(".id").value = VistrateComponentHelper.camelize(e.target.value);
+  });
+
+  document.body.appendChild(transient);
+});</pre></div><div class="paragraph style-paragraph collapsed" name="Toolbar style" data-id="8nUSCYuk" draggable="false" style=""><style data-type="content" type="text/css" codemirror="true">.viscomponent-toolbar-icon i {
+	position: absolute;
+	top: 12px;
+	font-family: var(--font-primary);
+}
+
+.dialog.create-new-component .vistemplates {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 100px);
+  grid-gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
+  overflow: hidden;
+  overflow-y: auto;
+  max-height: 400px;
+}
+
+.dialog.create-new-component .vistemplate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box !important;
+	height: 100px;
+  overflow: hidden;
+
+  text-align: center;
+	cursor: pointer;
+  background-color: var(--color-primary-shade-2);
+}
+
+.dialog.create-new-component .vistemplate .label {
+  pointer-events: none;
+	padding: 8px;
+}
+
+.dialog.create-new-component .vistemplate {
+  border: 2px solid transparent !important;
+  border-radius: 2px;
+}
+
+.dialog.create-new-component .vistemplate.selected {
+  border: 2px solid var(--color-accent) !important;
+}
+
+.dialog.create-new-component input[name="id"] {
+  display: none;
+}</style></div><div class="paragraph style-paragraph collapsed" data-id="m58UWerY" name="VisView style"><style data-type="content" type="text/css" codemirror="true">.visview {
+  overflow: visible !important;
+}</style></div><div class="paragraph code-paragraph collapsed" data-id="Q2adfraG" name="Execute run-on-load Vistrate Controllers added after page load" last-execution-state="success"><pre data-type="content" type="text/javascript">// Codestrate.addEventListener("loaded", function onLoaded() {
+//   Codestrate.removeEventListener("loaded", onLoaded);
+  
+  const liveSelector = document.liveQuerySelectorAll('.code-paragraph[run-on-load="true"] .viscontroller[data-type="content"]');
+  liveSelector.added((content) =&gt; {
+    if (!Codestrate.loaded) return;
+    
+    window.console.log('execute', content);
+    
+    const paragraph = content.closest('.code-paragraph');
+    Codestrate.executeParagraphsSync([paragraph]);
+  });
+// });</pre></div><div class="paragraph body-paragraph locked" data-id="ePmng3Wp"><div data-type="content" type="text/html" codemirror="true" contenteditable="false" class="writing"><h3>
+	Example 1:
+</h3><div>In this example we have first a data paragraph vis component that holds a number of apples, pears and bananas. It is followed by a vis component that observes the data paragraph and calculates the amount of fruit in percentage. The final component visualizes the percentages.</div><div>Try to change the number of fruit in the data paragraph below.</div></div></div><div class="paragraph code-paragraph" data-id="qm5DBaGN" name="Vis Example Data 1" last-execution-state="success" run-on-load="true"><pre data-type="content" type="text/javascript-viscontroller" id="visExampleData1">vc = {
+	data: 'visExampleData1-data',
+	update: function() {
+		this.output = this.data;
+	},
+};</pre></div><div class="paragraph data-paragraph" data-id="yytQmqBf" name="Vis Example Data 1 data"><pre data-type="content" type="application/json" class="visdata" id="visExampleData1-data">{
+  "data": {
+    "apples": 2,
+    "pears": 4,
+    "bananas": 1,
+		"plums": 2
+  }
+}</pre></div><div class="paragraph code-paragraph" name="Compute Percentage" data-id="Yj5v4Z67" last-execution-state="success" run-on-load="true"><pre data-type="content" type="text/javascript-viscontroller" id="computePercentage">vc = {
+	data: 'computePercentage-data',
+	src: ["fruits"],
+	update: function() {
+		const total = this.src.fruits.output.apples + this.src.fruits.output.pears + this.src.fruits.output.bananas + this.src.fruits.output.plums;
+		const applesPercentage = this.src.fruits.output.apples / total * 100;
+		const pearsPercentage = this.src.fruits.output.pears / total * 100;
+		const bananasPercentage = this.src.fruits.output.bananas / total * 100;
+		const plumsPercentage = this.src.fruits.output.plums / total * 100;
+		this.output = {
+			apples: applesPercentage,
+			pears: pearsPercentage,
+			bananas: bananasPercentage,
+			plums: plumsPercentage
+		};
+	},
+};</pre></div><div class="paragraph data-paragraph" name="Compute Percentage data" data-id="gh88QMJd"><pre data-type="content" type="application/json" id="computePercentage-data" class="visdata">{
+  "config": {
+    "src": {
+      "fruits": "visExampleData1"
+    }
+  }
+}</pre></div><div class="paragraph code-paragraph" name="Display Fruit Data" data-id="iMmQycnq" run-on-load="true" last-execution-state="success"><pre data-type="content" type="text/javascript-viscontroller" id="displayColorsData">vc = {
+	data: 'displayColorsData-data',
+	src: ["colors"],
+	props: ["red", "green", "yellow", "purple"],
+	init: function() {
+		this.view.content = `&lt;div class="red"&gt;&lt;/div&gt;
+                         &lt;div class="green"&gt;&lt;/div&gt;
+                         &lt;div class="yellow"&gt;&lt;/div&gt;
+                         &lt;div class="purple"&gt;&lt;/div&gt;`;
+	},
+	destroy: function() {
+		this.view.content = "";
+	},
+	update: function() {
+		let red = this.view.element.querySelector(".red");
+		red.innerText = this._props.red.prop;
+		red.style.width = this.props.red + "%";
+		
+		let green = this.view.element.querySelector(".green");
+		green.innerText = this._props.green.prop;
+		green.style.width = this.props.green + "%";
+		
+		let yellow = this.view.element.querySelector(".yellow");
+		yellow.innerText = this._props.yellow.prop;
+		yellow.style.width = this.props.yellow + "%";
+		
+		let purple = this.view.element.querySelector(".purple");
+		purple.innerText = this._props.purple.prop;
+		purple.style.width = this.props.purple + "%";
+	},
+};</pre></div><div class="paragraph data-paragraph" name="Display Fruit Data data" data-id="8EgdKGU9"><pre data-type="content" type="application/json" id="displayColorsData-data" class="visdata">{
+  "config": {
+    "src": {
+      "colors": "computePercentage"
+    },
+    "props": {
+      "red": {
+        "src": "colors",
+        "prop": "apples"
+      },
+      "green": {
+        "src": "colors",
+        "prop": "pears"
+      },
+      "yellow": {
+        "src": "colors",
+        "prop": "bananas"
+      }
+			,
+      "purple": {
+        "src": "colors",
+        "prop": "plums"
+      }
+    },
+    "view": "displayColorsData-view",
+		"viewClassNames": ["display-colors"]
+  }
+}</pre></div><div class="paragraph body-paragraph" name="Display Fruit Data view" data-id="nFbmbzCs"><div data-type="content" type="text/html" codemirror="true" contenteditable="true" id="displayColorsData-view" class="visview"></div></div><div class="paragraph style-paragraph collapsed" data-id="8QEdRd76" name="Example style"><style data-type="content" type="text/css" codemirror="true">.display-colors div {
+  float: left;
+  height: 100px;
+  color: black;
+  margin: 0px;
+  padding: 0px;
+  text-align: center;
+  font-size: 200%;
+  cursor: pointer;
+  padding-top: 60px;
+  user-select: none;
+	overflow: hidden;
+}
+
+.display-colors .green {
+  background-color: green;
+}
+
+.display-colors .red {
+  background-color: red;
+}
+
+.display-colors .yellow {
+  background-color: yellow;
+}
+
+.display-colors .purple {
+  background-color: purple;
+}</style></div><div class="paragraph body-paragraph locked" data-id="kiaEafiM"><div data-type="content" type="text/html" codemirror="true" contenteditable="false" class="writing"><h3>
+	Example 2:
+</h3><div>This example shows how to handle multiple data sources.</div></div></div><div class="paragraph code-paragraph" name="Boys Example Data" data-id="krYNhTgZ" last-execution-state="success" run-on-load="true"><pre data-type="content" type="text/javascript-viscontroller" id="boysExampleData">vc = {
+	data: 'boysExampleData-data',
+	update: function() {
+		this.output = this.data;
+	},
+};</pre></div><div class="paragraph data-paragraph" name="Boys Example Data data" data-id="3YJ7dxHa"><pre data-type="content" type="application/json" id="boysExampleData-data" class="visdata">{
+  "data": [
+    "Jeff",
+    "Brian",
+    "Peter",
+    "John"
+  ]
+}</pre></div><div class="paragraph code-paragraph" name="Girls Example Data" data-id="Jh3dhRv8" last-execution-state="success" run-on-load="true"><pre data-type="content" type="text/javascript-viscontroller" id="girlsExampleData">vc = {
+	data: 'girlsExampleData-data',
+	update: function() {
+		this.output = this.data;	
+	},
+};</pre></div><div class="paragraph data-paragraph" name="Girls Example Data data" data-id="7c5L7mjc" draggable="false" style=""><pre data-type="content" type="application/json" id="girlsExampleData-data" class="visdata">{
+  "data": [
+    "Mary",
+    "Eve",
+    "Jenny",
+    "Maria",
+    "Ann",
+    "Maggie"
+  ]
+}</pre></div><div class="paragraph code-paragraph" name="Difference Between Boys and Girls" data-id="EYxts2Z6" style="" last-execution-state="success" run-on-load="true"><pre data-type="content" type="text/javascript-viscontroller" id="differenceBetweenBoysAndGirls">vc = {
+	data: 'differenceBetweenBoysAndGirls-data',
+	src: ["boys", "girls"],
+	update: function() {
+		const diff = this.src.boys.output.length - this.src.girls.output.length;
+		let str;
+		if (diff &lt; 0) {
+			str = "There's fewer boys than girls.";
+		} else if (diff &gt; 0) {
+			str = "There's fewer girls than boys.";
+		} else {
+			str = "There's the same number of girls and boys.";
+		}
+		this.view.content = str;
+	},
+	destroy: function() {
+		this.view.content = "";
+	}
+};</pre></div><div class="paragraph data-paragraph" name="Difference Between Boys and Girls data" data-id="swyHEb7t"><pre data-type="content" type="application/json" id="differenceBetweenBoysAndGirls-data" class="visdata">{
+  "config": {
+    "src": {
+      "boys": "boysExampleData",
+      "girls": "girlsExampleData"
+    },
+    "view": "differenceBetweenBoysAndGirls-view"
+  }
+}</pre></div><div class="paragraph body-paragraph" name="Difference Between Boys and Girls view" data-id="yHb7gimm"><div data-type="content" type="text/html" codemirror="true" contenteditable="true" id="differenceBetweenBoysAndGirls-view" class="visview"></div></div></div>
