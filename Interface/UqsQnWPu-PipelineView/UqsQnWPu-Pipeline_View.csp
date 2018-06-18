@@ -1,0 +1,926 @@
+<div class="section section-visible" data-id="UqsQnWPu" name="Pipeline View" data-type="package" transient-focussed="true"><div class="paragraph body-paragraph collapsed" name="Documentation" data-id="Ph3gjrrq"><div data-type="content" type="text/html" codemirror="true" contenteditable="true" class="section-documentation"><h2>Pipeline View&nbsp;</h2><div>The pipeline view provides a basic graph overview of the vistrate components.&nbsp;</div><div><span style="color: var(--color-secondary-text); font-family: var(--font-secondary); font-size: 1rem; background-color: var(--color-primary-shade-2);">The pipeline view can be used to configure components and inspect component views by expanding nodes of interest.&nbsp;</span><br></div><div>The pipeline view can be toggled using the 'P'&nbsp;<span style="color: var(--color-secondary-text); font-family: var(--font-secondary); font-size: 1rem; background-color: var(--color-primary-shade-2);">icon in the top menu.</span></div></div></div><div class="paragraph data-paragraph locked collapsed" name="Properties" data-id="aEyqZMzW"><pre data-type="content" type="application/json" class="section-properties" contenteditable="false">{
+  "version": "0.3.2",
+  "icon": "your_material_icon_string",
+  "description": "The pipeline view provides an editable overview of Vistrate components.",
+  "dependencies": [
+    {
+      "id": "kTKppb2i",
+      "name": "Vistrate",
+      "optional": false
+    }
+  ],
+  "changelog": {
+    "0.3.2": "Using Codestrates command API to show pipeline. Pipeline slides in from the side instead of overlaying the whole codestrate.",
+    "0.3.1": "Pipeline follows theme.",
+    "0.3": "Now uses the VisView functions moveTo and moveBack to move views.",
+    "0.2.9": "Added background color.",
+    "0.2.8": "Fixed view stealing bug.",
+    "0.2.7": "Changed the selection of which sections to show.",
+    "0.2.6": "CSS updates and only show icons with functionality.",
+    "0.2.5": "Limit the potential sources to only the visible.",
+    "0.2.4": "Higher z-index",
+    "0.2.3": "Specific types of visviews are now scaled properly in the pipeline",
+    "0.2.2": "The pipeline view can be toggled when the package is hidden and only visable paragraphs are shown.",
+    "0.2.1": "Added a missing null check.",
+    "0.2": "Nodes and edges are now properly entering when components update or load.",
+    "0.1": "Initial version of the pipeline view."
+  },
+  "github": {
+    "url": "https://github.com/karthikbadam/Vistrates",
+    "folder": "Interface/UqsQnWPu-PipelineView"
+  }
+}</pre></div><div class="paragraph code-paragraph collapsed" name="Vistrate observer" data-id="vTGnTxjc" last-execution-state="success" run-on-load="true"><pre data-type="content" type="text/javascript-viscontroller" class="viscontroller" id="vistrateObserver">vc = {
+	init: function() {
+		this.callback = () =&gt; {
+			this.output = {};
+		};
+		Vistrate.observeVistrate(this.callback);
+	},
+	destroy: function() {
+		Vistrate.removeObserverFromVistrate(this.callback);
+	}
+};<circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle></pre></div><div class="paragraph code-paragraph collapsed" name="Throttle" data-id="nLzJev3D" run-on-load="true" last-execution-state="success"><pre data-type="content" type="text/javascript-viscontroller" class="viscontroller" id="throttle">vc = {
+	data: 'throttle-data',
+	src: ["observer"],
+	update: function() {
+		if (this.timeout) {
+			clearTimeout(this.timeout);
+		}
+		this.timeout = setTimeout(() =&gt; {
+			this.output = this.src.observer.output;
+		}, 1000);
+	},
+};<circle r="50" x="50" y="50" fill="darkgreen"></circle><circle r="50" x="50" y="50" fill="darkgreen"></circle><circle r="50" x="50" y="50" fill="darkgreen"></circle><circle r="50" x="50" y="50" fill="darkgreen"></circle><circle r="50" x="50" y="50" fill="darkgreen"></circle><circle r="50" x="50" y="50" fill="darkgreen"></circle><circle r="50" x="50" y="50" fill="darkgreen"></circle><circle r="50" x="50" y="50" fill="darkgreen"></circle><circle r="50" x="50" y="50" fill="darkgreen"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle></pre></div><div class="paragraph data-paragraph collapsed" name="Throttle data" data-id="XW5E8pAa"><pre data-type="content" type="application/json" id="throttle-data" class="visdata">{
+  "config": {
+    "src": {"observer": "vistrateObserver"},
+    "view": "throttle-view"
+  }
+}</pre></div><div class="paragraph code-paragraph collapsed" name="Component graph" data-id="Y2AezjFx" last-execution-state="success" run-on-load="true"><pre data-type="content" type="text/javascript-viscontroller" class="viscontroller" id="componentGraph">vc = {
+	data: 'componentGraph-data',
+	src: ["throttle"],
+	init: function() {
+		this.computeGraph = () =&gt; {
+			const graph = {nodes: [], edges: []};
+			Object.keys(Vistrate.outputs).forEach((c) =&gt; {
+				let comp = Vistrate.getOutput(c);
+        
+        const section = comp.paragraph.closest('.section');
+        
+        if (section.classList.contains("section-hidden")) return;
+				graph.nodes.push({id: c, class: comp.constructor.name, view: comp.view, name: comp.paragraph ?comp.paragraph.closest(".paragraph").getAttribute("name"): null});
+				if (comp._src) {
+					Object.keys(comp._src).forEach((s) =&gt; {
+						let o = comp._src[s]; 
+						if(o) graph.edges.push({source: o.id, target: c, class: "src"});
+					});
+				}
+			});
+			this.output = graph;	
+		};
+	},
+	update: function() {
+		if (this.computeGraph) this.computeGraph();
+	},
+};<circle r="50" x="50" y="50" fill="darkgreen"></circle><circle r="50" x="50" y="50" fill="darkgreen"></circle><circle r="50" x="50" y="50" fill="darkgreen"></circle><circle r="50" x="50" y="50" fill="darkgreen"></circle><circle r="50" x="50" y="50" fill="darkgreen"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle></pre></div><div class="paragraph data-paragraph collapsed" name="Component graph data" data-id="VpgxQtCW"><pre data-type="content" type="application/json" id="componentGraph-data" class="visdata">{
+  "config": {
+    "src": {"throttle": "throttle"}
+  }
+}</pre></div><div class="paragraph code-paragraph collapsed" data-id="JSqYHTG9" name="Component inspector" style="" last-execution-state="" draggable="false"><pre data-type="content" type="text/javascript" id="componentInspector">// JavaScript code here
+
+exports.generateInspector = function(id){
+	let sources = Vistrate.getOutput(id).src;
+	let props = Vistrate.getOutput(id)._props;
+	let h = Object.keys(sources).length*50 + Object.keys(props).length*75 + 5;
+	let w = 200;
+	let div = document.createElement("div");
+	div.classList.add("inspector");
+	div.style.width = w+"px";
+	div.style.height = h+"px";
+	Object.keys(sources).forEach((s) =&gt; {
+		let source = sources[s];
+		const sourceContainer = document.createElement("div");
+		sourceContainer.classList.add("sourceContainer");
+		const sourceTitle = document.createElement("label");
+		sourceTitle.classList.add("sourceTitle");
+		sourceTitle.innerHTML = s;
+		const sourceLabel = document.createElement("label");
+		sourceLabel.classList.add("sourceLabel");
+		sourceLabel.innerHTML = "Src";
+		const sourceSelect = document.createElement("select");
+		sourceSelect.classList.add("sourceSelect");
+		sourceSelect.innerHTML = "";
+		Object.keys(Vistrate.outputs).forEach((c) =&gt; {
+			let comp = Vistrate.getOutput(c);
+      const section = comp.paragraph.closest('.section');
+      if (!section.classList.contains("section-hidden")){
+        const opt = document.createElement("option");
+        opt.value = c;
+        opt.innerText = comp.friendlyName;
+        sourceSelect.appendChild(opt);
+      }
+		});
+		if(source !== null){
+			sourceSelect.value = source.id;
+		}
+		else{
+			const opt = document.createElement("option");
+			opt.value = "";
+			opt.innerText = "";
+			sourceSelect.appendChild(opt);
+			sourceSelect.value = "";
+		}
+		let listener = (e) =&gt; {
+			Vistrate.getOutput(id).addSource(s, e.target.value);
+		};
+		sourceSelect.addEventListener("change", listener);
+		sourceContainer.appendChild(sourceTitle);
+		sourceContainer.appendChild(sourceLabel);
+		sourceContainer.appendChild(sourceSelect);
+		div.append(sourceContainer);
+	});
+
+	Object.keys(props).forEach((p) =&gt; {
+		let prop = props[p];
+		const propContainer = document.createElement("div");
+		propContainer.classList.add("propContainer");
+		const propTitle = document.createElement("label");
+		propTitle.classList.add("propTitle");
+		propTitle.innerHTML = p;
+		const sourceLabel = document.createElement("label");
+		sourceLabel.classList.add("sourceLabel");
+		sourceLabel.innerHTML = "Src";
+		const sourceSelect = document.createElement("select");
+		sourceSelect.classList.add("sourceSelect");
+		sourceSelect.innerHTML = "";
+		Object.keys(sources).forEach((s) =&gt; {
+			const opt = document.createElement("option");
+			opt.value = s;
+			opt.innerText = s;
+			sourceSelect.appendChild(opt);
+		});
+		if(prop !== null){
+			sourceSelect.value = prop.src;
+			let srcListener = (e) =&gt; {
+				Vistrate.getOutput(id).addProp(p, e.target.value, prop.prop);
+			};
+			sourceSelect.addEventListener("change", srcListener);
+		}
+		else{
+			const opt = document.createElement("option");
+			opt.value = "";
+			opt.innerText = "";
+			sourceSelect.appendChild(opt);
+			sourceSelect.value = "";
+			let srcListener = (e) =&gt; {
+				Vistrate.getOutput(id).addProp(p, e.target.value, "");
+			};
+			sourceSelect.addEventListener("change", srcListener);
+		}
+		const propLabel = document.createElement("label");
+		propLabel.classList.add("propLabel");
+		propLabel.innerHTML = "Prop";
+		const propSelect = document.createElement("select");
+		propSelect.classList.add("propSelect");
+		propSelect.innerHTML = "";
+		let prop_options = [];
+		if(prop !== null &amp;&amp; sources[prop.src]){
+			let o = Vistrate.getOutput(sources[prop.src].id).output;
+			if(o !== undefined){
+				if(Array.isArray(o) &amp;&amp; o.length &gt; 0){
+					if(Object.keys(o[0])){
+						prop_options = Object.keys(o[0]);
+					}
+				}
+				else{
+					if(Object.keys(o)){
+						prop_options = Object.keys(o);
+					}
+				}
+			}
+		}
+		/*const goodOptions = document.createElement("optgroup");
+		goodOptions.label = "Usable";
+		prop_options.forEach((c) =&gt; {
+			const opt = document.createElement("option");
+			opt.value = c;
+			opt.innerText = c;
+			goodOptions.appendChild(opt);
+		});
+		propSelect.appendChild(goodOptions);
+		if(!prop_options.includes(prop.prop)){
+			const badOptions = document.createElement("optgroup");
+			badOptions.label = "Unusable";
+			const opt = document.createElement("option");
+			opt.value = prop.prop;
+			opt.innerText = prop.prop;
+			badOptions.appendChild(opt);
+			propSelect.appendChild(badOptions);
+		}*/
+		prop_options.forEach((c) =&gt; {
+			const opt = document.createElement("option");
+			opt.value = c;
+			opt.innerText = c;
+			propSelect.appendChild(opt);
+		});
+		if(prop !== null){
+			propSelect.value = prop.prop;
+			let listener = (e) =&gt; {
+				Vistrate.getOutput(id).addProp(p, prop.src, e.target.value);
+			};
+			propSelect.addEventListener("change", listener);
+		}
+		else{
+			let listener = (e) =&gt; {
+				Vistrate.getOutput(id).addProp(p, "", e.target.value);
+			};
+			propSelect.addEventListener("change", listener);
+		}
+		propContainer.appendChild(propTitle);
+		propContainer.appendChild(sourceLabel);
+		propContainer.appendChild(sourceSelect);
+		propContainer.appendChild(propLabel);
+		propContainer.appendChild(propSelect);
+		div.appendChild(propContainer);
+	});
+	return {w: w, h: h, content: div};
+};</pre></div><div class="paragraph code-paragraph collapsed" data-id="riVXZ2Yy" name="Component view"><pre data-type="content" type="text/javascript" id="componentView">// JavaScript code here
+
+exports.getView = function(id){
+	let comp = Vistrate.getOutput(id);
+	let w = 400;
+	let h = 200;
+	let div = document.createElement("div");
+	div.classList.add("viewContainer");
+	if(comp.view){
+		div.style.width = "400px";
+		div.style.height = "200px";
+		let ratio = comp.view.element.offsetWidth / comp.view.element.offsetHeight;
+		if(ratio &gt; 0.5){
+			div.classList.add("height-preferred");
+		}
+		else{
+		}
+    comp.view.moveTo(div);
+		return {w: w, h: h, content: div, view: comp.view};
+	}
+	else{
+		let div = document.createElement("div");
+		div.style.width = 180+"px";
+		div.style.height = h+"px";
+		div.innerHTML = "No view";
+		return {w: 180, h: 50, content: div};
+	}
+};
+
+</pre></div><div class="paragraph style-paragraph collapsed" data-id="qfJv5vDk" name="SVG component container Style"><style data-type="content" type="text/css" codemirror="true">.height-preferred .visview svg {
+ 	height: 100%; 
+}
+
+.width-preferred .visview svg {
+ 	width: 100%;
+}</style></div><div class="paragraph code-paragraph collapsed" name="Pipeline" data-id="Dd4tmfHt" last-execution-state="success" style="" run-on-load="true"><pre data-type="content" type="text/javascript-viscontroller" id="pipeline" class="viscontroller">vc = {
+	data: 'pipeline-data',
+	src: ["graph"],
+	libs: ['https://d3js.org/d3.v4.min.js', 'https://dagrejs.github.io/project/dagre/latest/dagre.min.js'],
+	init: function() {
+		const componentInspector = require("#componentInspector", null, false);
+		const componentView = require("#componentView", null, false);
+		this.view.content = '&lt;svg id="pipe-vis2-svg" width="960" height="500"&gt;&lt;/svg&gt;';
+		let that = this;
+		
+		let settings_icon = "M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z";
+		
+		let chart_icon = "M11 2v20c-5.07-.5-9-4.79-9-10s3.93-9.5 9-10zm2.03 0v8.99H22c-.47-4.74-4.24-8.52-8.97-8.99zm0 11.01V22c4.74-.47 8.5-4.25 8.97-8.99h-8.97z";
+		
+		let svg = d3.select("#pipe-vis2-svg"),
+				width = +svg.attr("width"),
+				height = +svg.attr("height"),
+				node_w = 180,
+				node_h = 25;
+    
+    svg.append("rect").attr("class", "pipelineBackground");
+
+		svg.append('svg:defs').selectAll('marker')
+			.data([{ id: 'end-arrow-white', fill: 'var(--color-primary)' }, { id: 'end-arrow-green', fill: 'darkgreen'}])
+			.enter().append('marker')
+			.attr('id', d =&gt; d.id)
+			.attr('viewBox', '0 0 5 5')
+			.attr('refX', 2.5)
+			.attr('refY', 1.5)
+			.attr('markerWidth', 8)
+			.attr('markerHeight', 8)
+			.attr('orient', 'auto')
+			.append('svg:path')
+			.attr('d', 'M0,0 L0,3 L3,1.5 z')
+			.style('fill', d =&gt; d.fill);
+		
+		let line = d3.line()
+			.x(function(d) { return d.x; })
+			.y(function(d) { return d.y; })
+			.curve(d3.curveBasis);
+
+		let expanded = {};
+		
+		let g = svg.append("g").attr("id", "pipe-vis-view2-g");
+		
+		let zoom_handler = d3.zoom()
+    		.on("zoom", zoom_actions);
+			
+		zoom_handler(svg);  
+		
+		svg.on("dblclick.zoom", null);
+		
+		svg.call(zoom_handler.transform, d3.zoomIdentity.translate(500, 250));
+		
+		function zoom_actions(){
+			g.attr("transform", d3.event.transform);
+		}
+		
+		this.update_graph = function(){
+			let data = this.src.graph.output;
+			this.graph = new dagre.graphlib.Graph();
+			this.graph.setGraph({});
+			this.graph.setDefaultEdgeLabel(function() { return {}; });
+
+			data.nodes.forEach((n) =&gt; {
+				if(Object.keys(expanded).includes(n.id)){
+					this.graph.setNode(n.id, {label: n.name, height: node_h+expanded[n.id].h, width: expanded[n.id].w, class: n.class, id: n.id});
+				}
+				else{
+					this.graph.setNode(n.id, {label: n.name, height: node_h, width: node_w, class: n.class, id: n.id});
+				}
+			});
+			data.edges.forEach((e) =&gt; {
+				this.graph.setEdge(e.source, e.target, {source: e.source, target: e.target, class: e.class});
+			});
+			dagre.layout(this.graph);
+		};
+		
+		this.update_graph();
+		
+		this.nodes = function(){
+			let nodes = [];
+			this.graph.nodes().forEach((n) =&gt; {
+				nodes.push(this.graph.node(n));
+			});
+			return nodes;
+		};
+		
+		this.edges = function(){
+			let edges = [];
+			this.graph.edges().forEach((e) =&gt; {
+				edges.push(this.graph.edge(e));
+			});
+			return edges;
+		};
+		
+			/*.on("mouseover", (d) =&gt; {
+			d3.select("#path_"+d.source+"_"+d.target)
+				.style("stroke", "darkgreen")
+				.style("marker-end", 'url(#end-arrow-green)');
+			})
+			.on("mouseout", (d) =&gt; {
+			d3.select("#path_"+d.source+"_"+d.target)
+				.style("stroke", "#fff")
+				.style("marker-end", 'url(#end-arrow-white)');
+			});*/
+		
+		this.update_layout = function(){
+			
+			let node = g.selectAll(".node").data(this.nodes());
+			
+			node.exit().transition().remove();
+			
+			node.transition().attr("transform", (d) =&gt; {return "translate("+(d.x-d.width/2-5)+","+(d.y-d.height/2)+")";});
+			
+			node.select("rect")
+				.transition()
+				.attr("height", (d) =&gt; {return d.height;})
+				.attr("width", (d) =&gt; {return d.width;});
+
+			node.select(".settings")
+				.transition()
+				.attr("transform", (d) =&gt; {return "translate("+(d.width-node_h)+",2)";});
+			
+			node.select(".chart")
+				.transition()
+				.attr("transform", (d) =&gt; {
+        	if(!componentInspector.generateInspector(d.id).content.firstChild){
+            return "translate("+(d.width-node_h)+",2)";
+          }
+        	else{
+            return "translate("+(d.width-node_h*2)+",2)";
+          }
+      	});
+			
+			let node_enter = node.enter().append("g")
+				.attr("class", "node")
+				.attr("id", (d) =&gt; {return "node"+d.id;})
+				.attr("transform", (d) =&gt; {return "translate("+(d.x-d.width/2)+","+(d.y-d.height/2)+")";});
+
+			node_enter.append("rect")
+				.attr("class", "nodeBox")
+				.attr("id", (d) =&gt; {return "nodeBox"+d.id;})
+				.attr("x", 0)
+				.attr("y", 0)
+				.attr("height", (d) =&gt; {return d.height;})
+				.attr("width", (d) =&gt; {return d.width;});
+
+			node_enter.append("text")
+				.attr("class", "nodeTitle")
+				.attr("id", (d) =&gt; {return "nodeTitle"+d.id;})
+				.attr("x", 5)
+				.attr("y", 17)
+				.attr("text-anchor", "start")
+				.text((d) =&gt; {
+					if(d.label.length &gt; 17){
+						return d.label.substring(0, 17)+"...";
+					}
+					else{
+						return d.label;
+					}
+				});
+
+			node_enter.append("g")
+				.attr("class", "settings")
+      	.attr("id", (d) =&gt; {return "settings"+d.id;})
+				.attr("transform", (d) =&gt; {return "translate("+(d.width-node_h)+",2)";})
+				.append("path")
+				.attr("d", settings_icon)
+				.on("click", (d) =&gt; {
+					if(expanded[d.id] &amp;&amp; expanded[d.id].type === "config"){
+						this.collapse_config(d);
+					}
+					else{
+						if(expanded[d.id]){
+							this.collapse_view(d);
+						}
+						this.expand_config(d);
+					}
+				});
+
+			node_enter.append("g")
+				.attr("class", "chart")
+      	.attr("id", (d) =&gt; {return "chart"+d.id;})
+				.attr("transform", (d) =&gt; {return "translate("+(d.width-node_h*2)+",2)";})
+				.append("path")
+				.attr("d", chart_icon)
+				.on("click", (d) =&gt; {
+					if(expanded[d.id] &amp;&amp; expanded[d.id].type === "view"){
+						this.collapse_view(d);
+					}
+					else{
+						if(expanded[d.id]){
+							this.collapse_config(d);
+						}
+						this.expand_view(d);
+					}
+				});
+			
+			node_enter.merge(node);
+      
+			let edge = g.selectAll(".edge").data(this.edges());
+			
+			edge.exit().transition().remove();
+			
+			edge.select("path").transition()
+				.attr("d", (d) =&gt; {return line(d.points);});
+			
+			let edge_enter = edge.enter().append("g")
+				.attr("class", "edge")
+				.append("path")
+				.attr("id", (d) =&gt; {return "path_"+d.source+"_"+d.target;})
+				.attr("d", (d) =&gt; {return line(d.points);})
+				.attr('marker-end','url(#end-arrow-white)');
+			
+			edge_enter.merge(edge);
+
+		};
+    
+    this.update_icons = function(){
+    	d3.selectAll(".settings").each((d) =&gt; {
+        let inspector = componentInspector.generateInspector(d.id);
+        let component = Vistrate.getOutput(d.id);
+        if(!inspector.content.firstChild){
+          d3.select("#settings"+d.id).remove();
+        }
+        if(!component.view){
+          d3.select("#chart"+d.id).remove();
+        }
+        if(!inspector.content.firstChild &amp;&amp; component.view){
+           d3.select("#chart"+d.id).attr("transform", (n) =&gt; {return "translate("+(n.width-node_h)+",2)";});
+        }
+      });
+    };
+		
+		this.update_layout();
+		
+		this.expand_config = function(d){
+			let inspector = componentInspector.generateInspector(d.id);
+			if(!Object.keys(expanded).includes(d.id)){
+				let w = inspector.w;
+				let h = inspector.h;
+				expanded[d.id] = {w: w, h:h, type: "config"};
+				this.graph.nodes().forEach((n) =&gt; {
+					let temp = this.graph.node(n);
+					if(temp.id === d.id){
+							temp.height = node_h+h;
+							temp.width = w;
+					}
+				});
+				dagre.layout(this.graph);
+				this.update_layout();
+			
+				let config = d3.select("#node"+d.id)
+					.append("g")
+					.attr("class", "config")
+					.attr("id", "config"+d.id)
+					.attr("opacity", 0)
+					.attr("transform", (d) =&gt; {return "translate(0,"+node_h+")";});      
+
+				config.append('foreignObject')
+					.attr("width", w)
+					.attr("height", h)
+					.attr("id", "configObj"+d.id);
+				
+				let obj = document.querySelector("#configObj"+d.id);
+				obj.appendChild(inspector.content);
+				
+				d3.select("#config"+d.id)
+					.transition()
+					.attr("opacity", 1);
+			}
+		};
+		
+		this.expand_view = function(d){
+			let view = componentView.getView(d.id);
+			if(!Object.keys(expanded).includes(d.id)){
+				let w = view.w;
+				let h = view.h;
+				expanded[d.id] = {w: w, h:h, type: "view", view: view.view};
+				this.graph.nodes().forEach((n) =&gt; {
+					let temp = this.graph.node(n);
+					if(temp.id === d.id){
+							temp.height = node_h+h;
+							temp.width = w;
+					}
+				});
+				dagre.layout(this.graph);
+				this.update_layout();
+			
+				let v = d3.select("#node"+d.id)
+					.append("g")
+					.attr("class", "view")
+					.attr("id", "view"+d.id)
+					.attr("opacity", 1)
+					.attr("transform", (d) =&gt; {return "translate(0,"+node_h+")";});      
+
+				v.append('foreignObject')
+					.attr("width", 0)
+					.attr("height", 0)
+					.attr("id", "viewObj"+d.id);
+				
+				let obj = document.querySelector("#viewObj"+d.id);
+				obj.appendChild(view.content);
+				
+				d3.select("#viewObj"+d.id)
+					.transition()
+					.duration(5000)
+					.attr("width", w)
+					.attr("height", h);
+			}
+		};
+				
+		
+		this.collapse_config = function(d){
+			if(Object.keys(expanded).includes(d.id)){
+				delete expanded[d.id];
+				this.graph.nodes().forEach((n) =&gt; {
+					let temp = this.graph.node(n);
+					if(temp.id === d.id){
+						temp.height = node_h;
+						temp.width = node_w;
+					}
+				});
+				dagre.layout(this.graph);
+				this.update_layout();
+				d3.select("#config"+d.id).remove();
+			}
+		};
+
+		this.collapse_view = function(d){
+			if(Object.keys(expanded).includes(d.id)){
+        expanded[d.id].view.moveBack();
+				delete expanded[d.id];
+				this.graph.nodes().forEach((n) =&gt; {
+					let temp = this.graph.node(n);
+					if(temp.id === d.id){
+						temp.height = node_h;
+						temp.width = node_w;
+					}
+				});
+				dagre.layout(this.graph);
+				this.update_layout();
+				d3.select("#view"+d.id).remove();
+			}
+		};
+		
+		this.update_configs_and_views = function(){
+			Object.keys(expanded).forEach((id) =&gt; {
+				if(expanded[id].type === "config"){
+					that.collapse_config({id: id});
+					that.expand_config({id: id});
+				}
+				else{
+					that.collapse_view({id: id});
+					that.expand_view({id: id});
+				}
+			});
+		};
+		
+		
+		this.redraw = function(){
+			this.update_graph();
+			this.update_layout();
+      this.update_icons();
+			this.update_configs_and_views();
+		};
+		
+		d3.select("body").on("keyup", function() { 
+			 if(d3.event.key === "Escape"){
+				 require("#pipelineUtils").hidePipeline();
+				 Object.keys(expanded).forEach((id) =&gt; {
+						if(expanded[id].type === "view"){
+							that.collapse_view({id: id});
+						}
+					});
+			 }
+		});
+		
+	},
+	update: function() {
+		if(this.redraw) this.redraw();
+	},
+};<circle r="50" fill="darkgreen" x="50" y="50"></circle><circle r="50" fill="darkgreen" x="50" y="50"></circle><circle r="50" fill="darkgreen" x="50" y="50"></circle><circle r="50" fill="darkgreen" x="50" y="50"></circle><circle r="50" fill="darkgreen" x="50" y="50"></circle><circle r="50" fill="darkgreen" x="50" y="50"></circle><circle r="50" fill="darkgreen" x="50" y="50"></circle><circle r="50" fill="darkgreen" x="50" y="50"></circle><circle r="50" fill="darkgreen" x="50" y="50"></circle><circle r="50" fill="darkgreen" x="50" y="50"></circle><circle r="50" fill="darkgreen" x="50" y="50"></circle><circle r="50" fill="darkgreen" x="50" y="50"></circle><circle r="50" x="50" y="50" fill="darkgreen"></circle><circle r="50" x="50" y="50" fill="darkgreen"></circle><circle r="50" x="50" y="50" fill="darkgreen"></circle><circle r="50" x="50" y="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle r="50" fill="darkgreen"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle><circle class="sourceNode" r="50"></circle></pre></div><div class="paragraph data-paragraph collapsed" name="Pipeline data" data-id="BJsy8Tpw" style=""><pre data-type="content" type="application/json" id="pipeline-data" class="visdata">{
+  "config": {
+    "src": {"graph": "componentGraph"},
+    "view": "pipeline-view"
+  },
+  "data": {}
+}</pre></div><div class="paragraph body-paragraph collapsed" name="Pipeline view" data-id="nAmLq9aJ" draggable="false" style=""><div data-type="content" type="text/html" id="pipeline-view" codemirror="true" contenteditable="true" class="visview pipeline" spellcheck="false" data-gramm_id="8806480d-4fc1-d2da-a3ed-cd6acd68b786" data-gramm="true" data-gramm_editor="true"></div><grammarly-btn><div class="_1BN1N Kzi1t MoE_1 _2DJZN" style="z-index: 2; transform: translate(810px, 503px);"><div class="_1HjH7"><div title="Protected by Grammarly" class="_3qe6h">&nbsp;</div></div></div></grammarly-btn><grammarly-btn><div class="_1BN1N Kzi1t MoE_1 _2DJZN" style="z-index: 2; transform: translate(810px, 503px);"><div class="_1HjH7"><div title="Protected by Grammarly" class="_3qe6h">&nbsp;</div></div></div></grammarly-btn></div><div class="paragraph style-paragraph collapsed" data-id="t3czDbkg" name="Pipeline style" style="" draggable="false"><style data-type="content" type="text/css" codemirror="true">/* CSS here */
+
+svg{
+	cursor: default;
+}
+
+/*.inspector{ 
+	max-width: 200px;
+  margin: 0 20px;
+  display: grid;
+  grid-gap: 10px;
+}*/
+
+/*.visview > svg { 
+	width:100%; 
+	height: 100%;
+}*/
+
+
+.pipelineBackground{
+  width: 100%;
+  height: 100%;
+	fill: var(--color-primary-shade-3);  
+}
+
+.settings path{
+	fill: var(--color-primary-text);
+	transform: scale(0.85);
+}
+
+.settings:hover path{
+	fill: var(--material-color-orange);
+	cursor: pointer;
+}
+
+.chart path{
+	fill: var(--color-primary-text);
+	transform: scale(0.85);
+}
+
+.chart:hover path{
+	fill: var(--material-color-orange);
+	cursor: pointer;
+}
+
+.nodeTitle{
+	font: var(--font-monospace);
+  font-size: 14px;
+  font-weight: bold;
+ 	fill: var(--color-primary-text);
+}
+
+.inspector{
+	font: var(--font-monospace);
+	color: var(--color-primary-text);
+	font-size: 12px;
+}
+
+.title{
+	margin: 0 5px;
+}
+
+.sourceContainer{ 
+	max-width: 200px;
+	height: 50px;
+  margin: 0 5px;
+  display: grid;
+  grid-gap: 5px;
+	align-items: center;
+}
+
+.propContainer{ 
+	max-width: 200px;
+	height: 75px;
+  margin: 0 5px;
+  display: grid;
+  grid-gap: 5px;
+	align-items: center;
+}
+
+.sourceTitle {
+	grid-column: 1 / 3;
+  grid-row: 1;
+  padding-top: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--color-primary-text);
+}
+
+.sourceLabel {
+	grid-column: 1 ;
+  grid-row: 2 ;
+	width: 100%;
+}
+
+.sourceSelect {
+	grid-column: 2;
+  grid-row: 2;
+	width: 100%;
+	height: 100%;
+}
+
+.propTitle {
+	grid-column: 1 / 3;
+  grid-row: 1;
+  padding-top: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--color-primary-text);
+}
+
+.propLabel {
+	grid-column: 1 ;
+  grid-row: 3 ;
+	width: 100%;
+}
+
+.propSelect {
+	grid-column: 2;
+  grid-row: 3;
+	width: 100%;
+	height: 100%;
+}
+
+.nodeBox{
+	fill: var(--color-primary);
+	/*stroke: #fff;*/
+}
+
+.nodeTitle {
+	pointer-events: none;
+}
+
+.edge path {
+	stroke: var(--color-primary);
+	stroke-width: 2px;
+	fill: none;
+}
+
+.h rect{
+	fill: darkgreen;
+}
+
+.active rect{
+	fill: lightgreen;
+}
+
+/*.edge:hover path{
+	stroke-width: 1.5px;
+	stroke: darkgreen;
+}*/
+
+/*.edge:hover{
+	fill: darkgreen;
+}*/
+
+.menu-entry rect{
+	stroke: rgb(200,200,200);
+	stroke-width: 1px;
+}
+
+.menu-entry:hover rect{
+	fill: rgb(200,200,200);
+}
+
+.menu-entry text{
+	pointer-events: none;
+}
+
+/*.configNode rect {
+  fill: none;
+	stroke: #ccc;
+}*/
+
+/*.configNode text { font: 12px sans-serif; }
+
+.node--internal text {
+  text-shadow: 0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff;
+}*/
+
+.configLink {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 2px;
+}
+
+.configSelect{
+	z-index: 10000;
+}
+</style></div><div class="paragraph style-paragraph collapsed" data-id="rsdNm8yp" name="Pipeline view"><style data-type="content" type="text/css" codemirror="true">body[transient-pipeline] #pipelineViewContainer {
+	position: fixed;
+	right: 0%;
+	top: 0%;
+  width: 33%;
+  height: 100%;
+  z-index: 1300;
+	background-color: var(--color-primary-shade-2);
+  transform: translate3d(100%, 0, 0);
+  box-shadow: none;
+  transition: transform var(--navigation-transition), box-shadow var(--navigation-transition);
+}
+
+body[transient-pipeline="true"] #pipelineViewContainer {
+  transform: translate3d(0, 0, 0);
+  box-shadow: 0 0 10px gray;
+}
+
+body[transient-pipeline="true"] #pipelineViewContainer > .visview > svg {
+	width: 100% !important;
+	height: 100% !important;
+}
+
+svg foreignObject > .viewContainer {
+	display: flex;
+/* 	position: static; */
+/* 	overflow: auto; */
+	overflow: hidden;
+}
+
+svg foreignObject > .viewContainer .visview {
+/* 	overflow: scroll; */
+/* 	display: flex; */
+/* 	width: 100%; */
+/* 	height: 100%; */
+}
+</style></div><div class="paragraph code-paragraph collapsed" data-id="XFGk5fP9" name="Pipeline menu item" last-execution-state="success" run-on-load="true" style=""><pre data-type="content" type="text/javascript">const GlobalToolbarUtils = require("#global-toolbar-utils");
+const PipelineUtils = require("#pipelineUtils");
+GlobalToolbarUtils.addButton("Show pipeline view", "P", "viscomponent-toolbar-icon", 1, () =&gt; {
+  Codestrate.executeCommand("vistrate.togglePipeline");
+});
+
+Codestrate.addCommand("vistrate.togglePipeline", "Toggle Pipeline", () =&gt; {
+  PipelineUtils.showPipeline();
+}, "Toggle the Vistrate pipeline view");
+
+Codestrate.addKeyBinding("vistrate.togglePipeline", 'shift+mod+p', true);</pre></div><div class="paragraph code-paragraph collapsed" data-id="VMAR7UFi" name="Pipeline utils" last-execution-state="success"><pre data-type="content" type="text/javascript" id="pipelineUtils">exports.hidePipeline = function () {
+  let container = document.getElementById("pipelineViewContainer");
+  let pipeline = Vistrate.getOutput("pipeline");
+  if (!container) return;
+  pipeline.view.parent.appendChild(container.firstChild);
+  // 	container.remove();
+  document.body.setAttribute("transient-pipeline", false);
+};
+
+exports.showPipeline = function () {
+  let container = document.getElementById("pipelineViewContainer");
+  if (!container) {
+    container = document.createElement("transient");
+    container.setAttribute("id", "pipelineViewContainer");
+    document.body.appendChild(container);
+  }
+  let pipeline = Vistrate.getOutput("pipeline");
+  container.appendChild(pipeline.view.element);
+//   setTimeout(() =&gt; {
+    document.body.setAttribute("transient-pipeline", true);
+//   }, 0);
+};</pre></div></div>
