@@ -1,0 +1,105 @@
+<div class="section section-visible hide-collapsed-paragraphs" name="Plotly Time Series" data-type="package" data-id="327bRSaU" transient-focussed="true"><div class="paragraph body-paragraph" name="Documentation" data-id="P8DR2c5w"><div data-type="content" type="text/html" codemirror="true" contenteditable="true" class="section-documentation"><h2>Plotly Time Series</h2><div>A time series visualization implemented with Plotly. Specify the date column and all other columns will become lines. The output can be used time the date filter component.</div></div></div><div class="paragraph data-paragraph collapsed locked" name="Properties" data-id="FtWwbYdr"><pre data-type="content" type="application/json" class="section-properties" contenteditable="false">{
+	"version": "0.1.1",
+	"icon": "your_material_icon_string",
+	"description": "Plotly time series.",
+	"tags": [
+		"vistrate", "chart", "time", "multi-line"
+	],
+  "assets": [
+		"plotly.min.js"
+	],
+	"dependencies": [
+		{
+			"id": "kTKppb2i",
+			"name": "Vistrate",
+			"optional": false
+		}
+	],
+	"changelog":
+	{
+    "0.1.1": "Plotly assest added to properties.",
+		"0.1": "Initial version."
+	},
+  "github": {
+    "url": "https://github.com/karthikbadam/Vistrates",
+    "folder": "Visualization/327bRSaU-PlotlyTimeSeries"
+  }
+}</pre></div><div class="paragraph code-paragraph collapsed" name="Plotly Time Series" data-id="Vd4r9htu" last-execution-state="success"><pre data-type="content" type="text/javascript-viscontroller" class="viscontroller run-on-add" id="plotlyTimeSeries">vc = {
+	data: '$data-id',
+	src: ["data"],
+  props: ["date"],
+	libs: ["plotly.min.js"],
+	init: function() {
+		this.plotDiv = document.createElement("div");
+		this.view.content = this.plotDiv;
+		this.Plotly = Plotly;
+    
+    this.update_output = () =&gt; {
+      if(!this.data || this.data.length !== 2) return;
+      let obj = {};
+      obj[this.props.date] = {gte:this.data[0], lte:this.data[1]};
+      this.output = obj;
+    };
+
+    this.update_view = () =&gt; {
+      if(!this.data || this.data.length !== 2) return;
+      let layout = {"xaxis.range": this.data};
+      this.Plotly.relayout(this.plotDiv, layout);
+    };
+    
+    this.draw_plot = () =&gt; {
+      function unpack(rows, key) {
+      	return rows.map(function(row) { return row[key]; });
+    	}
+      
+      let columns = Object.keys(this.src.data.output[0]);
+      let data = [];
+      columns.forEach((c, i) =&gt; {
+        if(this.props.date === c || c === "Volume") return;
+        let trace = {
+            type: "scatter",
+            mode: "lines",
+            name: c,
+            x: unpack(this.src.data.output, this.props.date),
+            y: unpack(this.src.data.output, c),
+            //line: {color: 'lightblue'}
+         	};
+        
+        data.push(trace);
+      });
+      
+      let layout = {xaxis: {rangeslider: {}, type: 'date'}};
+      this.Plotly.newPlot(this.plotDiv, data, layout);
+      this.plotDiv.on('plotly_relayout', (eventdata) =&gt; { 
+        if(eventdata['xaxis.range[0]']){
+          this.data = [eventdata['xaxis.range[0]'], eventdata['xaxis.range[1]']];
+        }
+        else{
+          this.data = [eventdata['xaxis.range'][0], eventdata['xaxis.range'][1]];
+        }
+      });
+    };
+       
+	},
+	destroy: function() {
+		this.view.content = "";
+	},
+	update: function(source) {
+		if (!this.src.data || !this.src.data.output || !this.props.date) return;
+		if(source === "ownData"){
+     	this.update_view();
+      this.update_output();
+    }
+    else{
+      this.draw_plot();
+      this.update_view();
+    	this.update_output();
+    }
+	}
+};</pre></div><div class="paragraph data-paragraph collapsed" name="Plotly Time Series&nbsp;data" data-id="aRcqF4Ju"><pre data-type="content" type="application/json" id="plotlyTimeSeries-data" class="visdata">{
+  "config": {
+    "src": {},
+    "view": "$view-id"
+  },
+  "data": {}
+}</pre></div><div class="paragraph body-paragraph" name="Plotly Time Series&nbsp;view" data-id="KA3dHd7v"><div data-type="content" type="text/html" codemirror="true" contenteditable="true" id="plotlyTimeSeries-view" class="visview"></div></div></div>
