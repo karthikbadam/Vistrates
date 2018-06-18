@@ -24,7 +24,6 @@ Removing packages is done by selecting the _Remove Packages_ entry in the menu. 
 
 Vistrates is a research prototype in active development. Many features are still experimental and yet to be properly documented.
 
----
 ## License
 
 The MIT License (MIT)
