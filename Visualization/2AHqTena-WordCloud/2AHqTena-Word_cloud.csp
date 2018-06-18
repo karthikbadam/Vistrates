@@ -1,0 +1,111 @@
+<div class="section section-visible hide-collapsed-paragraphs" data-type="package" data-id="2AHqTena" name="Word cloud" transient-focussed="true"><div class="paragraph body-paragraph" name="Documentation" data-id="PAWDSQ6q"><div data-type="content" type="text/html" codemirror="true" contenteditable="true" class="section-documentation"><h2>Word cloud</h2><div>Creates a word cloud for data on the form <code>{word: count, ...}</code></div></div></div><div class="paragraph data-paragraph collapsed" name="Properties" data-id="iUt8yftk"><pre data-type="content" type="application/json" class="section-properties" contenteditable="true">{
+	"version": "0.1.1",
+	"icon": "your_material_icon_string",
+	"description": "Your short description.",
+	"tags": [
+		"vistrate"
+	],
+	"assets": [
+		"wordcloud2.js"
+	],
+	"dependencies": [
+		{
+			"id": "kTKppb2i",
+			"name": "Vistrate",
+			"optional": false
+		}
+	],
+	"changelog":
+	{
+		"0.1.1": "Run on add..",
+    "0.1": "Initial version."
+	},
+  "github": {
+    "url": "https://github.com/karthikbadam/Vistrates",
+    "folder": "Visualization/2AHqTena-WordCloud"
+  }
+}</pre></div><div class="paragraph code-paragraph collapsed" data-id="FbS7QjNy" name="Shuffle array" last-execution-state=""><pre data-type="content" type="text/javascript" id="shuffle-array" class="skip">exports.shuffle = function(array) {
+  var currentIndex = array.length, temporaryValue, randomIndex;
+
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
+};</pre></div><div class="paragraph code-paragraph collapsed" data-id="7vRhCdmL" last-execution-state="success" name="Word cloud"><pre data-type="content" type="text/javascript-viscontroller" class="viscontroller run-on-add" id="wordcloud">vc = {
+	data: '$data-id',
+	src: ["data"],
+	props: [],
+  libs: ["wordcloud2.js"],
+	init: function() {
+    this.canvas = document.createElement("canvas");
+    this.view.content = this.canvas;
+    this.canvas.width = 960;
+    this.canvas.height = 720;
+	},
+	destroy: function() {
+		this.view.content = "";
+	},
+	update: function(source) {
+    if (!this.src.data || !this.src.data.output) return;
+		if (!this.view.element) return;
+    let words = Object.keys(this.src.data.output);
+    words.sort((a, b) =&gt; {
+    	return this.src.data.output[b] - this.src.data.output[a];  
+    });
+    if (words.length &gt; 1000) {
+      words = words.slice(350,550);
+    } else {
+      words = words.slice(0, 200);
+    }
+    let topWords = [];
+    let max = this.src.data.output[words[words.length-1]];
+    let min = this.src.data.output[words[0]];
+    words.forEach((w) =&gt; {
+      let x = this.src.data.output[w];
+      topWords.push([ w, Math.abs(((x-min)/(max-min)))]);
+    });
+    topWords = require("#shuffle-array").shuffle(topWords);
+    WordCloud(this.canvas, { 
+      list: topWords,
+		  weightFactor: (size) =&gt; {
+        let weight = 10+Math.pow(2, size*4.5);
+    		if (size&gt;0.98) weight += 50;
+        return weight;
+  		},
+  		fontFamily: 'Times, serif',
+  		color: function (word, weight) {
+				if (weight &gt; 0.98) {
+          return "green";
+        } else if (weight &gt; 0.7) {
+          return "#c0392b";
+        } else if (weight &gt; 0.5) {
+          return "#e74c3c";
+        } else if (weight &gt; 0.3) {
+          return "#e67e22";
+        } 
+        return "#f39c12";
+      },
+  		rotateRatio: 0.5,
+  		rotationSteps: 2,
+  		backgroundColor: '#ffffff'
+    });
+  }
+};</pre></div><div class="paragraph data-paragraph collapsed" name="Top 200 data" data-id="WQie9FTF"><pre data-type="content" type="application/json" id="wordcloud-data" class="visdata">{
+  "config": {
+    "src": {
+      "data": ""
+    },
+    "view": "$view-id"
+  },
+  "data": {}
+}</pre></div><div class="paragraph body-paragraph" name="Top 200 view" data-id="S2e873ie"><div data-type="content" type="text/html" codemirror="true" contenteditable="true" id="wordcloud-view" class="visview"></div></div></div>
