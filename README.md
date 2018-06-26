@@ -1,4 +1,4 @@
-<span style="background-color: #FFFF00">Note: This repository is currently under development. It will be updated with the examples presented in our paper and a wiki for installation and usage instructions.</span>
+<mark>Note: This repository is currently under development. It will be updated with the examples presented in our paper and a wiki for installation and usage instructions.</mark>
 
 # Vistrates Framework and Packages
 
