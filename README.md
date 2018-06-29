@@ -2,7 +2,9 @@ __Note: This repository is currently under construction. In the coming months, i
 
 # Vistrates Framework and Packages
 
-Vistrates is a literate computing platform for developing, assembling, sharing, and resuing visualization components in data analytics. In contrast to other literate computing platforms, Vistrates allows you to work at multiple abstraction levels: in a interactive programming view for coding, a dashboard for exploring visualizations, a canvas for annotation, and a presentation view for showcasing results. It is built on top of [Codestrates](https://github.com/Webstrates/Codestrates). This repository contains features for visualization and data analytics in the form of components, which can be easily added or removed. But, first remember to install the Vistrates package, which contains the core framework, on a codestrate to turn it into a vistrate.
+Vistrates is a literate computing platform for developing, assembling, sharing, and reusing visualization components in data analytics. In contrast to other literate computing platforms, Vistrates allows you to work at multiple abstraction levels: a interactive programming view for coding, a dashboard for exploring visualizations, a canvas for annotation, and a presentation view for showcasing results. New abstraction levels can also be developed within Vistrates since it is based on the concept of information substrates.
+
+Vistrates is built on top of [Codestrates](https://github.com/Webstrates/Codestrates). This repository contains features for visualization and data analytics in the form of components, which can be easily added or removed. But, first remember to install the Vistrates package, which contains the core framework, on a codestrate to turn it into a vistrate.
 
 ## Demo
 
