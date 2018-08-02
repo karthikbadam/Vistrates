@@ -6,9 +6,7 @@ Vistrates is a literate computing platform for developing, assembling, sharing, 
 
 Vistrates is built on top of [Codestrates](https://github.com/Webstrates/Codestrates). This repository contains features for visualization and data analytics in the form of components, which can be easily added or removed. But, first remember to install the Vistrates package, which contains the core framework, on a codestrate to turn it into a vistrate.
 
-## Demo
-
-To test the Vistrates framework, you can try our [public hosting](https://webstrates.umd.edu/Codestrate/?copy) at University of Maryland. 
+<!---## Demo  To test the Vistrates framework, you can try our [public hosting](https://webstrates.umd.edu/Codestrate/?copy) at University of Maryland.-->
 
 ## Installation
 
