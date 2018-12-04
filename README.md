@@ -1,6 +1,12 @@
-__Note: This repository is currently under construction. In the coming months, it will be updated with examples and a wiki for installation and usage instructions.__
+__Note: This repository is currently under construction. In the coming months, it will be updated with a wiki for installation and usage instructions.__
 
-# Vistrates Framework and Packages
+# Try Vistrates (New!)
+
+You can try Vistrates and check out some of our examples on [vistrates.org](https://vistrates.org).
+
+For a quick overview of Vistrates, see our [video demonstration](https://www.youtube.com/watch?v=nMmiWBJoJUc) or watch our [research talk with a live demo](https://vimeo.com/299858359) at IEEE VIS 2018. 
+
+## Vistrates Framework and Packages
 
 Vistrates is a literate computing platform for developing, assembling, sharing, and reusing visualization components in data analytics. In contrast to other literate computing platforms, Vistrates allows you to work at multiple abstraction levels: a interactive programming view for coding, a dashboard for exploring visualizations, a canvas for annotation, and a presentation view for showcasing results. New abstraction levels can also be developed within Vistrates since it is based on the concept of information substrates.
 
