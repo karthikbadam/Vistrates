@@ -1,12 +1,15 @@
-<div class="section section-visible hide-collapsed-paragraphs" name="Leaflet Map" data-id="KU4XKeuU" style="" draggable="false" data-type="package" transient-focussed="true"><div class="paragraph body-paragraph collapsed" name="Documentation" data-id="wa39ivrf" style=""><div data-type="content" type="text/html" codemirror="true" contenteditable="true" class="section-documentation"><h2>Leaflet Map</h2><div>Map implementation using leaflet with marker clustering and area selection. The output is a query that can be used with the searchjs filter.</div></div></div><div class="paragraph data-paragraph collapsed locked" name="Properties" data-id="BUwvQ5Se" style=""><pre data-type="content" type="application/json" class="section-properties" contenteditable="false">{
-	"version": "0.8.9",
+<div class="section section-visible" name="Leaflet Map" data-id="KU4XKeuU" style="" draggable="false" data-type="package" transient-focussed="true"><div class="paragraph body-paragraph collapsed" name="Documentation" data-id="wa39ivrf" style=""><div data-type="content" type="text/html" codemirror="true" contenteditable="true" class="section-documentation"><h2>Leaflet Map</h2><div>Map implementation using leaflet with marker clustering and area selection. The output is a query that can be used with the searchjs filter.</div></div></div><div class="paragraph data-paragraph collapsed locked" name="Properties" data-id="BUwvQ5Se" style=""><pre data-type="content" type="application/json" class="section-properties" contenteditable="false">{
+	"version": "0.9.0",
 	"icon": "location_on",
 	"description": "Leaflet map component.",
 	"tags": [
 		"vistrate"
 	],
   "assets": [
-		"leaflet.zip"
+		"leaflet.zip", "MarkerCluster.css", "MarkerCluster.Default.css", "leaflet.draw.css", "font-awesome.css", "easy-button.css", "leaflet.markercluster-src.js",
+       "leaflet.draw.js",
+       "lodash.min.js",
+       "easy-button.js"
 	],
 	"dependencies": [
 		{
@@ -17,6 +20,7 @@
 	],
 	"changelog":
 	{
+    "0.9.0": "Loading libraries as assets",
     "0.8.9": "Changed default map view.",
     "0.8.8": "Map is configured to span 100% width and height if possible.",
     "0.8.7": "Fixed id bug.",
@@ -43,13 +47,13 @@
 	data: '$data-id',
 	src: ["data", "gps"],
 	props: ["lat", "lng", "name", "loc_lat", "loc_lng"],
-	libs:["leaflet.zip/leaflet.js", "https://leaflet.github.io/Leaflet.markercluster/dist/leaflet.markercluster-src.js",
-       "https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js",
-       "https://cdn.jsdelivr.net/npm/lodash@4.17.5/lodash.min.js",
-        "https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.js"],
+	libs:["leaflet.zip/leaflet.js", "leaflet.markercluster-src.js",
+       "leaflet.draw.js",
+       "lodash.min.js",
+        "easy-button.js"],
 	init: function() {
 		importStyle(["leaflet.zip/leaflet.css",
-                 "https://leaflet.github.io/Leaflet.markercluster/dist/MarkerCluster.css", "https://leaflet.github.io/Leaflet.markercluster/dist/MarkerCluster.Default.css", "https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css", "https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css", "https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.css"]);
+                 "MarkerCluster.css", "MarkerCluster.Default.css", "leaflet.draw.css", "font-awesome.css", "easy-button.css"]);
     
     window.console.log('init Map Leaflet called');
 		
@@ -62,7 +66,7 @@
 		let map = L.map(mapContainer, {
         minZoom: 2
     });
-    map.setView([43.6602396,-79.3992252], 10);
+    map.setView([52.5168741,13.2935227], 12);
 
 		L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
 			maxZoom: 18,
